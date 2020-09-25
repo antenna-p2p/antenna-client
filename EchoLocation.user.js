@@ -32,11 +32,11 @@ cardboard.on("runScripts",function() {
 		while(!discord) {
 		var discord = prompt("Discord Userame#1234")
 		}
-		var code = Math.floor(1000 + Math.random() * 9000);
+		var code = Math.floor(1000 + Math.random() * 9000).toString();
 
 
 		socket.emit("login",{discord,code})
-		//alert("Your code is" + code);
+		alert("Your code is" + code);
 
 	})
 

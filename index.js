@@ -122,8 +122,14 @@ class Client {
 	login({discord,code}) {
 		if(!discord)return;
 		var user = client.users.cache.find(u=>u.tag==discord);
-		user.send("Thnak you!");
-		this.discord = user.id;
+		user.send("What is your code?")
+		var c = this;
+		onDM = function(message) {
+			if(message.content == code) {
+				user.send("Thank you!");
+				c.discord = user.id;
+
+			}
 	}
 
 	joinRoom(room) {
