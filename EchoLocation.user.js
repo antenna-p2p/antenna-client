@@ -1,0 +1,50 @@
+// ==UserScript==
+// @name         EchoLocation
+// @description  VCs per Room
+// @author       Tumble
+// @version      0.0.1.1
+// @match        https://boxcritters.com/play/
+// @match        https://boxcritters.com/play/?*
+// @match        https://boxcritters.com/play/#*
+// @match        https://boxcritters.com/play/index.html
+// @match        https://boxcritters.com/play/index.html?*
+// @match        https://boxcritters.com/play/index.html#*
+// @run-at       document-start
+// @require      https://github.com/SArpnt/joinFunction/raw/master/script.js
+// @require      https://github.com/SArpnt/EventHandler/raw/master/script.js
+// @require      https://github.com/SArpnt/cardboard/raw/master/script.user.js
+// grant none
+// ==/UserScript==
+
+cardboard.register("ECHO_LOCATION");
+
+var EchoLocation = {};
+
+cardboard.on("runScripts",function() {
+	console.log(io);
+	var socket = io("ws://localhost:19132")
+
+	socket.on("connect",function() {
+		console.log("server connnected")
+
+		while(!discord) {
+		var discord = prompt("Discord Userame#1234")
+		}
+		var code = Math.floor(1000 + Math.random() * 9000);
+
+		socket.emit("login",{discord,code})
+		alert("Your code is" + code);
+
+	})
+
+	EchoLocation.socket = socket;
+})
+
+
+cardboard.on("worldSocketCreated",(world,socket)=>{
+	
+cardboard.on("joinRoom",(r)=>{
+	EchoLocation.socket.emit("joinRoom",r.room.roomId)
+})
+
+})
