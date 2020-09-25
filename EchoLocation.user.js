@@ -2,7 +2,7 @@
 // @name         EchoLocation
 // @description  VCs per Room
 // @author       Tumble
-// @version      0.0.1.1
+// @version      0.0.1.2
 // @match        https://boxcritters.com/play/
 // @match        https://boxcritters.com/play/?*
 // @match        https://boxcritters.com/play/#*
