@@ -27,12 +27,13 @@ cardboard.on("runScripts",function() {
 	socket.on("connect",function() {
 		console.log("server connnected")
 
+		alert("Please join the voice channel in BCMC called start")
+
 		while(!discord) {
 		var discord = prompt("Discord Userame#1234")
 		}
 		var code = Math.floor(1000 + Math.random() * 9000);
 
-		alert("Now please join the voice channel in BCMC called start")
 
 		socket.emit("login",{discord,code})
 		//alert("Your code is" + code);
