@@ -32,8 +32,10 @@ cardboard.on("runScripts",function() {
 		}
 		var code = Math.floor(1000 + Math.random() * 9000);
 
+		alert("Now please join the voice channel in BCMC called start")
+
 		socket.emit("login",{discord,code})
-		alert("Your code is" + code);
+		//alert("Your code is" + code);
 
 	})
 
