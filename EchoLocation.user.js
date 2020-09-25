@@ -22,7 +22,7 @@ var EchoLocation = {};
 
 cardboard.on("runScripts",function() {
 	console.log(io);
-	var socket = io("ws://localhost:19132")
+	var socket = io("tumble-room-vc.herokuapp.com")
 
 	socket.on("connect",function() {
 		console.log("server connnected")
