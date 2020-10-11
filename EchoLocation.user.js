@@ -2,7 +2,7 @@
 // @name         EchoLocation
 // @description  VCs per Room
 // @author       Tumble
-// @version      0.0.2.2
+// @version      0.0.2.3
 // @match        https://boxcritters.com/play/
 // @match        https://boxcritters.com/play/?*
 // @match        https://boxcritters.com/play/#*
@@ -92,7 +92,7 @@ cardboard.on("runScripts", function () {
 	EchoLocation.on("connect", function () {
 		console.log("Connected to", url)
 	})
-	EchoLocation.on("voice",function(arrayBuffer)  {
+	EchoLocation.on("voice",function({bcid,arrayBuffer})  {
 		playBuffer(arrayBuffer);
 	})
 })
