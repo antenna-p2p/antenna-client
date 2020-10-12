@@ -22,6 +22,15 @@ console.log = (...p) => {
 	console.debug(...p)
 };
 
+var macroPack = BCMacros.CreateMacroPack("Echo Location")
+macroPack.createMacro({
+	name:"Mute",
+	action:() =>{
+
+	},
+	key:"m"
+})
+
 var EchoLocation = {
 	delay: 100,
 	emit: function (...p) {
