@@ -13,14 +13,16 @@
 // @require      https://github.com/SArpnt/joinFunction/raw/master/script.js
 // @require      https://github.com/SArpnt/EventHandler/raw/master/script.js
 // @require      https://github.com/SArpnt/cardboard/raw/master/script.user.js
+// @require      https://github.com/tumble1999/mod-utils/raw/master/mod-utils.js
+
 // ==/UserScript==
 
-cardboard.register("ECHO_LOCATION");
-console.log("[Echo Location] By TumbleGamer")
-console.log = (...p) => {
-	p.unshift("[EL]");
-	console.debug(...p)
-};
+
+var mod = BCModUtils.InitialiseMod({
+	name:"Echo Location",
+	abriv:"EL",
+	author:"TumbleGamer"
+})
 
 var macroPack = BCMacros.CreateMacroPack("Echo Location")
 macroPack.createMacro({
@@ -42,7 +44,7 @@ var EchoLocation = {
 	login: function () {
 		if (!this.world) return;
 		let id = this.world.player.playerId;
-		console.log("Logging in as", id)
+		mod.log("Logging in as", id)
 		this.emit("login", id)
 	}
 };
@@ -67,7 +69,7 @@ function setupStream(mediaStream) {
 	};
 	mediaRecorder.onstop = function (e) {
 		var blob = new Blob(this.chunks, { 'type': 'audio/ogg; codecs=opus' });
-		console.log(blob);
+		mod.log(blob);
 		EchoLocation.emit('voice', blob);
 
 		
@@ -84,8 +86,8 @@ function setupStream(mediaStream) {
 }
 
 function setupMicrophone() {
-	console.log("setting up mic");
-	navigator.getUserMedia({ audio: true }, setupStream, console.log);
+	mod.log("setting up mic");
+	navigator.getUserMedia({ audio: true }, setupStream, mod.log);
 }
 
 setupMicrophone();
@@ -93,25 +95,25 @@ setupMicrophone();
 
 
 cardboard.on("runScripts", function () {
-	if (io) console.log("Socket.io's 'io' variable has been found.");
+	if (io) mod.log("Socket.io's 'io' variable has been found.");
 	var url = "tumble-room-vc.herokuapp.com"
 	//var url = "ws://localhost:3000"
 	EchoLocation.socket = io(url)
 
 	EchoLocation.on("connect", function () {
-		console.log("Connected to", url)
+		mod.log("Connected to", url)
 	})
 	EchoLocation.on("voice",function({bcid,arrayBuffer})  {
 		playBuffer(arrayBuffer);
 	})
 })
 cardboard.on("worldCreated", (world) => {
-	console.log("World Created")
+	mod.log("World Created")
 	EchoLocation.world = world;
 })
 cardboard.on("worldSocketCreated", (world, socket) => {
 	socket.on("joinRoom", (r) => {
-		console.log("Joined Room: " + r.roomId)
+		mod.log("Joined Room: " + r.roomId)
 		EchoLocation.emit("joinRoom", r.roomId)
 	})
 })
