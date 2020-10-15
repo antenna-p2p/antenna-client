@@ -20,7 +20,7 @@
 
 var mod = BCModUtils.InitialiseMod({
 	name:"Antenna",
-	abriv:"EL",
+	abriv:"Ant",
 	author:"TumbleGamer"
 })
 
