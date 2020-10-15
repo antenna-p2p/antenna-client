@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         EchoLocation
+// @name         Antenna
 // @description  VCs per Room
 // @author       Tumble
 // @version      0.0.2.3
@@ -19,12 +19,12 @@
 
 
 var mod = BCModUtils.InitialiseMod({
-	name:"Echo Location",
+	name:"Antenna",
 	abriv:"EL",
 	author:"TumbleGamer"
 })
 
-var macroPack = BCMacros.CreateMacroPack("Echo Location")
+var macroPack = BCMacros.CreateMacroPack("Antenna")
 macroPack.createMacro({
 	name:"Mute",
 	action:() =>{
@@ -33,7 +33,7 @@ macroPack.createMacro({
 	key:"m"
 })
 
-var EchoLocation = {
+var Antenna = {
 	delay: 100,
 	emit: function (...p) {
 		this.socket.emit(...p)
@@ -70,19 +70,19 @@ function setupStream(mediaStream) {
 	mediaRecorder.onstop = function (e) {
 		var blob = new Blob(this.chunks, { 'type': 'audio/ogg; codecs=opus' });
 		mod.log(blob);
-		EchoLocation.emit('voice', blob);
+		Antenna.emit('voice', blob);
 
 		
-		EchoLocation.mediaRecorder.start();
+		Antenna.mediaRecorder.start();
 		setTimeout(()=>{
-			EchoLocation.mediaRecorder.stop()
+			Antenna.mediaRecorder.stop()
 		},500)
 	};
 	mediaRecorder.start();
 	setTimeout(()=>{
-		EchoLocation.mediaRecorder.stop()
-	},EchoLocation.delay)
-	EchoLocation.mediaRecorder = mediaRecorder;
+		Antenna.mediaRecorder.stop()
+	},Antenna.delay)
+	Antenna.mediaRecorder = mediaRecorder;
 }
 
 function setupMicrophone() {
@@ -98,25 +98,25 @@ cardboard.on("runScripts", function () {
 	if (io) mod.log("Socket.io's 'io' variable has been found.");
 	var url = "tumble-room-vc.herokuapp.com"
 	//var url = "ws://localhost:3000"
-	EchoLocation.socket = io(url)
+	Antenna.socket = io(url)
 
-	EchoLocation.on("connect", function () {
+	Antenna.on("connect", function () {
 		mod.log("Connected to", url)
 	})
-	EchoLocation.on("voice",function({bcid,arrayBuffer})  {
+	Antenna.on("voice",function({bcid,arrayBuffer})  {
 		playBuffer(arrayBuffer);
 	})
 })
 cardboard.on("worldCreated", (world) => {
 	mod.log("World Created")
-	EchoLocation.world = world;
+	Antenna.world = world;
 })
 cardboard.on("worldSocketCreated", (world, socket) => {
 	socket.on("joinRoom", (r) => {
 		mod.log("Joined Room: " + r.roomId)
-		EchoLocation.emit("joinRoom", r.roomId)
+		Antenna.emit("joinRoom", r.roomId)
 	})
 })
-cardboard.on("login", EchoLocation.login)
+cardboard.on("login", Antenna.login)
 
-unsafeWindow.EchoLocation = EchoLocation;
+unsafeWindow.Antenna = Antenna;
