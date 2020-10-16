@@ -2,7 +2,7 @@
 // @name         Antenna
 // @description  VCs per Room
 // @author       Tumble
-// @version      0.0.8.8
+// @version      0.0.9.9
 // @match        https://boxcritters.com/play/
 // @match        https://boxcritters.com/play/?*
 // @match        https://boxcritters.com/play/#*
