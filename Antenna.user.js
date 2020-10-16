@@ -35,7 +35,8 @@ var Antenna = new TumbleMod({
 		Antenna.log("Logging in as", id)
 		this.emit("login", id)
 	}
-}).register();
+})
+Antenna.register();
 
 var macroPack = BCMacros.CreateMacroPack("Antenna")
 macroPack.createMacro({
