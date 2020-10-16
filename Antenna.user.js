@@ -2,7 +2,7 @@
 // @name         Antenna
 // @description  VCs per Room
 // @author       Tumble
-// @version      0.0.6.6
+// @version      0.0.7.7
 // @match        https://boxcritters.com/play/
 // @match        https://boxcritters.com/play/?*
 // @match        https://boxcritters.com/play/#*
@@ -32,11 +32,10 @@ var Antenna = new TumbleMod({
 	login: function () {
 		if (!this.world) return;
 		let id = this.world.player.playerId;
-		mod.log("Logging in as", id)
+		Antenna.log("Logging in as", id)
 		this.emit("login", id)
 	}
-})
-mod.register();
+}).register();
 
 var macroPack = BCMacros.CreateMacroPack("Antenna")
 macroPack.createMacro({
@@ -67,7 +66,7 @@ function setupStream(mediaStream) {
 	};
 	mediaRecorder.onstop = function (e) {
 		var blob = new Blob(this.chunks, { 'type': 'audio/ogg; codecs=opus' });
-		mod.log(blob);
+		Antenna.log(blob);
 		Antenna.emit('voice', blob);
 
 		
@@ -84,33 +83,33 @@ function setupStream(mediaStream) {
 }
 
 function setupMicrophone() {
-	mod.log("setting up mic");
-	navigator.getUserMedia({ audio: true }, setupStream, mod.log);
+	Antenna.log("setting up mic");
+	navigator.getUserMedia({ audio: true }, setupStream, Antenna.log);
 }
 
 setupMicrophone();
 
 
 cardboard.on("runScripts", function () {
-	if (io) mod.log("Socket.io's 'io' variable has been found.");
+	if (io) Antenna.log("Socket.io's 'io' variable has been found.");
 	var url = "tumble-room-vc.herokuapp.com"
 	//var url = "ws://localhost:3000"
 	Antenna.socket = io(url)
 
 	Antenna.on("connect", function () {
-		mod.log("Connected to", url)
+		Antenna.log("Connected to", url)
 	})
 	Antenna.on("voice",function({bcid,arrayBuffer})  {
 		playBuffer(arrayBuffer);
 	})
 })
 cardboard.on("worldCreated", (world) => {
-	mod.log("World Created")
+	Antenna.log("World Created")
 	Antenna.world = world;
 })
 cardboard.on("worldSocketCreated", (world, socket) => {
 	socket.on("joinRoom", (r) => {
-		mod.log("Joined Room: " + r.roomId)
+		Antenna.log("Joined Room: " + r.roomId)
 		Antenna.emit("joinRoom", r.roomId)
 	})
 })
