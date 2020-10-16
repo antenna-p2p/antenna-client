@@ -2,7 +2,7 @@
 // @name         Antenna
 // @description  VCs per Room
 // @author       Tumble
-// @version      0.0.5.5
+// @version      0.0.6.6
 // @match        https://boxcritters.com/play/
 // @match        https://boxcritters.com/play/?*
 // @match        https://boxcritters.com/play/#*
@@ -18,23 +18,10 @@
 // ==/UserScript==
 
 
-var mod = BCModUtils.InitialiseMod({
+var Antenna = new TumbleMod({
 	name:"Antenna",
 	abriv:"Ant",
-	author:"TumbleGamer"
-})
-mod.register();
-
-var macroPack = BCMacros.CreateMacroPack("Antenna")
-macroPack.createMacro({
-	name:"Mute",
-	action:() =>{
-
-	},
-	key:"m"
-})
-
-var Antenna = {
+	author:"TumbleGamer",
 	delay: 100,
 	emit: function (...p) {
 		this.socket.emit(...p)
@@ -48,7 +35,17 @@ var Antenna = {
 		mod.log("Logging in as", id)
 		this.emit("login", id)
 	}
-};
+})
+mod.register();
+
+var macroPack = BCMacros.CreateMacroPack("Antenna")
+macroPack.createMacro({
+	name:"Mute",
+	action:() =>{
+
+	},
+	key:"m"
+})
 
 async function playBuffer(arrayBuffer) {
 	var audioContext = new AudioContext();
