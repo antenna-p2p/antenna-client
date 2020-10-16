@@ -44,7 +44,7 @@
 
 			if(Antenna.muteMacro&&Antenna.muteMacro.button) {
 				Antenna.muteMacro.disableButton()
-				Antenna.muteMacro.enableButton({color:getMuteColor()})
+				Antenna.muteMacro.enableButton({color:getMuteColor(),text:"🎤"})
 			}
 		},
 		recorder:null
@@ -58,7 +58,7 @@
 		Antenna.muteMacro = macroPack.createMacro({
 			name: "Mute",
 			action:Antenna.toggleMute,
-			button:{color:getMuteColor()},
+			button:{color:getMuteColor(),text:"🎤"},
 			key: "m"
 		})
 	}
@@ -116,9 +116,9 @@
 		Antenna.on("connect", function () {
 			Antenna.log("Connected to", url)
 		})
-		Antenna.on("voice", function ({ bcid, arrayBuffer }) {
-			Antenna.log("incoming",blob);
-			playBuffer(arrayBuffer);
+		Antenna.on("voice", function ({ bcid, data }) {
+			Antenna.log("incoming",data);
+			playBuffer(data);
 		})
 	})
 	cardboard.on("worldCreated", (world) => {
