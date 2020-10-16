@@ -92,7 +92,7 @@ function setupMicrophone() {
 
 setupMicrophone();
 
-
+mod.register();
 
 cardboard.on("runScripts", function () {
 	if (io) mod.log("Socket.io's 'io' variable has been found.");
