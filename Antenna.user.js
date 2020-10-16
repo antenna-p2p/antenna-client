@@ -2,7 +2,7 @@
 // @name         Antenna
 // @description  VCs per Room
 // @author       Tumble
-// @version      0.0.4.4
+// @version      0.0.5.5
 // @match        https://boxcritters.com/play/
 // @match        https://boxcritters.com/play/?*
 // @match        https://boxcritters.com/play/#*
@@ -23,6 +23,7 @@ var mod = BCModUtils.InitialiseMod({
 	abriv:"Ant",
 	author:"TumbleGamer"
 })
+mod.register();
 
 var macroPack = BCMacros.CreateMacroPack("Antenna")
 macroPack.createMacro({
@@ -92,7 +93,6 @@ function setupMicrophone() {
 
 setupMicrophone();
 
-mod.register();
 
 cardboard.on("runScripts", function () {
 	if (io) mod.log("Socket.io's 'io' variable has been found.");
