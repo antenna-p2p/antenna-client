@@ -1,26 +1,24 @@
 {
-  "name": "echo-location",
+  "name": "antenna",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tumble1999/echo-location.git"
+    "url": "git+https://github.com/tumble1999/antenna.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/tumble1999/echo-location/issues"
+    "url": "https://github.com/tumble1999/antenna/issues"
   },
-  "homepage": "https://github.com/tumble1999/echo-location#readme",
+  "homepage": "https://github.com/tumble1999/antenna#readme",
   "dependencies": {
-    "discord.js": "^12.3.1",
-    "node-fetch": "^2.6.1",
     "socket.io": "^2.3.0",
     "tn-webserver": "^1.0.3"
   }
