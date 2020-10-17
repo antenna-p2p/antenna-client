@@ -57,14 +57,23 @@ function createPeerConnection(id) {
 
 	return peerConnection;
 }
-navigator.mediaDevices
+navigator.getUserMedia(
+	constraints,
+	stream=>{
+		console.log("Connected to Microphone Stream",stream)
+		audio.input.srcObject = stream
+		socket.emit("joinRoom")
+	},
+	error=>console.error(error))
+
+/*navigator.mediaDevices
 .getUserMedia(constraints)
 .then(stream=>{
 	console.log("Connected to Microphone Stream",stream)
 	audio.input.srcObject = stream
 	socket.emit("joinRoom")
 })
-.catch(error=>console.error(error))
+.catch(error=>console.error(error))*/
 socket.on("connect",()=>{
 	console.log("Connected to " + ip);
 })
@@ -107,6 +116,7 @@ socket.on("candidate", (id, candidate) => {
 });
 
 socket.on("peerDisconnect",id=>{
+	if(!peerConnections[id]) return
 	console.log(`Peer ${id} has left the room`)
 	disconnectFromPeer(id);
 })
