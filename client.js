@@ -1,5 +1,4 @@
 const peerConnections = {};
-const incomingNodes = {};
 const config = {
 	iceServers: [
 		{
@@ -22,8 +21,6 @@ function disconnectFromPeer(id) {
 	if(!peerConnections[id]) return
 	peerConnections[id].close()
 	delete peerConnections[id];
-	if(!incomingNodes[id]) return
-	delete incomingNodes[id];
 }
 
 function disconnectFromAllPeers() {
