@@ -9,8 +9,8 @@ const config = {
 	]
 }
 //let ip = "ws://localhost:3001";
-//let ip = "http://" + location.hostname + ":3001";
-let ip = "tumble-room-vc.herokuapp.com"
+let ip = "http://" + location.hostname + ":3001";
+//let ip = "tumble-room-vc.herokuapp.com"
 let socket = io.connect(ip);
 var audioContext = new AudioContext;
 let audio = {
@@ -25,7 +25,7 @@ function createPeerConnection(id) {
 
 	peerConnection.onicecandidate = event => {
 		if (event.candidate) {
-			socket.emit("candidate", {id, message:event.candidate});
+			socket.emit("candidate", {id, candidate:event.candidate});
 		}
 	};
 	//Setup Input Stream
@@ -87,7 +87,7 @@ socket.on("peerConnect", function (id) {
 		.createOffer()
 		.then(sdp => peerConnection.setLocalDescription(sdp))
 		.then(_ => {
-			socket.emit("request", {id, message:peerConnection.localDescription});
+			socket.emit("request", {id, description:peerConnection.localDescription});
 		})
 })
 
@@ -100,7 +100,7 @@ socket.on("request", ({id, bcid, description}) => {
 		.then(_ => peerConnection.createAnswer())
 		.then(sdp => peerConnection.setLocalDescription(sdp))
 		.then(_ => {
-			socket.emit("answer", {id, message:peerConnection.localDescription});
+			socket.emit("answer", {id, description:peerConnection.localDescription});
 		})
 })
 

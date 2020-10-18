@@ -73,15 +73,15 @@ class Client {
 		this.roomEmit("peerConnect",this.id);
 	}
 
-	request({id, message}) {
-		this.peerEmit(id,"request", {id:this.id,bcid:this.bcid, message})
+	request({id, description}) {
+		this.peerEmit(id,"request", {id:this.id,bcid:this.bcid, description})
 	}
 
-	answer({id, message}) {
-		this.peerEmit(id,"answer", {id:this.id, bcid:this.bcid, message})
+	answer({id, description}) {
+		this.peerEmit(id,"answer", {id:this.id, bcid:this.bcid, description})
 	}
 
-	candidate({id, message}) {
-		this.peerEmit(id,"candidate", {id:this.id, message})
+	candidate({id, candidate}) {
+		this.peerEmit(id,"candidate", {id:this.id, candidate})
 	}
 }
