@@ -84,7 +84,7 @@ socket.on("peerConnect", function (id) {
 	console.log(`Peer ${id} has joined the room. Sending a peer to peer connection request to the new peer.`)
 	let peerConnection = createPeerConnection(id);
 	peerConnection
-		.createrequest()
+		.createOffer()
 		.then(sdp => peerConnection.setLocalDescription(sdp))
 		.then(_ => {
 			socket.emit("request", {id, message:peerConnection.localDescription});
