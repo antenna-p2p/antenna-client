@@ -39,9 +39,13 @@ class Client {
 		});
 	}
 	join(room) {
-		this.socket.leave(this.room)
-		this.room = room;
-		this.socket.join(room)
+		if(this.room) {
+			console.log(this.id + " is leaving room " + this.room)
+			this.socket.leave(this.room)
+		}
+		this.room = room||"test";
+		console.log(this.id + " is joining room " + this.room)
+		this.socket.join(this.room)
 	}
 	emit(...a) {
 		this.socket.emit(...a);
@@ -59,21 +63,22 @@ class Client {
 		console.debug("Client Disconnected:",this.id);
 		this.roomEmit("peerDisconnect",this.id);
 	}
-	joinRoom(room="test") {
+	joinRoom({room,bcid}) {
 		if(this.room) this.roomEmit("peerDisconnect",this.id);
+		console.log("ddsfs")
 		this.join(room);
-		this.roomEmit("peerConnect",this.id);
+		this.roomEmit("peerConnect",{id:this.id,bcid});
 	}
 
-	offer(id, message) {
-		this.peerEmit(id,"offer", this.id, message)
+	offer({id, message}) {
+		this.peerEmit(id,"offer", {id:this.id, message})
 	}
 
-	answer(id, message) {
-		this.peerEmit(id,"answer", this.id, message)
+	answer({id, message}) {
+		this.peerEmit(id,"answer", {id:this.id, message})
 	}
 
-	candidate(id, message) {
-		this.peerEmit(id,"candidate", this.id, message)
+	candidate({id, message}) {
+		this.peerEmit(id,"candidate", {id:this.id, message})
 	}
 }
