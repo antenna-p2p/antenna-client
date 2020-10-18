@@ -9,8 +9,8 @@ const config = {
 	]
 }
 //let ip = "ws://localhost:3001";
-let ip = "http://" + location.hostname + ":3001";
-//let ip = "tumble-room-vc.herokuapp.com"
+//let ip = "http://" + location.hostname + ":3001";
+let ip = "tumble-room-vc.herokuapp.com"
 let socket = io.connect(ip);
 var audioContext = new AudioContext;
 let audio = {
