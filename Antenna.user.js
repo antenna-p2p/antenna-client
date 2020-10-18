@@ -2,7 +2,7 @@
 // @name         Antenna
 // @description  3D Web based peer to peer voice chat
 // @author       TumbleGamer
-// @version      0.0.9.9
+// @version      0.0.10.10
 // @match        https://boxcritters.com/play/
 // @match        https://boxcritters.com/play/?*
 // @match        https://boxcritters.com/play/#*
@@ -56,8 +56,7 @@
 
 		peerConnection.onicecandidate = event => {
 			if (event.candidate) {
-				Antenna.log("Local Cnadidate",event.candidate)
-				Antenna.emit("candidate", { id, message: event.candidate });
+				Antenna.emit("candidate", { id, candidate: event.candidate });
 			}
 		};
 		//Setup Input Stream
@@ -121,7 +120,7 @@
 				.createOffer()
 				.then(sdp => peerConnection.setLocalDescription(sdp))
 				.then(_ => {
-					Antenna.emit("request", { id, message: peerConnection.localDescription })
+					Antenna.emit("request", { id, description: peerConnection.localDescription })
 				})
 		});
 		Antenna.on("request", ({ id, bcid, description }) => {
@@ -132,7 +131,7 @@
 				.then(_ => peerConnection.createAnswer())
 				.then(sdp => peerConnection.setLocalDescription(sdp))
 				.then(_ => {
-					Antenna.emit("answer", { id, message: peerConnection.localDescription });
+					Antenna.emit("answer", { id, description: peerConnection.localDescription });
 				})
 			Antenna.peerPlayerIds[id] = bcid
 		})
@@ -145,7 +144,7 @@
 		});
 
 		Antenna.on("candidate", ({ id, candidate }) => {
-			Antenna.log(`Candidate recived from ${id}:`, candidate)
+			//Antenna.log(`Candidate recived from ${id}:`, candidate)
 			Antenna.peerConnections[id]
 				.addIceCandidate(new RTCIceCandidate(candidate))
 				.catch(e => console.error(e));

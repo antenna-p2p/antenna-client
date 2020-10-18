@@ -111,7 +111,7 @@ socket.on("answer", ({id,bcid, description}) => {
 });
 
 socket.on("candidate", ({id, candidate}) => {
-	console.log(`Candidate recived from ${id}:`, candidate)
+	//console.log(`Candidate recived from ${id}:`, candidate)
 	peerConnections[id]
 		.addIceCandidate(new RTCIceCandidate(candidate))
 		.catch(e => console.error(e));
