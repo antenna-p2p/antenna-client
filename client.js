@@ -70,7 +70,7 @@ function disconnectFromAllPeers() {
 
 function joinRoom(room) {
 	disconnectFromAllPeers();
-	socket.emit("joinRoom",{room})
+	socket.emit("joinRoom",room)
 	console.log("Joined room " + room)
 }
 
@@ -80,20 +80,20 @@ socket.on("connect", () => {
 })
 
 // From New Peer to existing Peers
-socket.on("peerConnect", function ({id}) {
+socket.on("peerConnect", function (id) {
 	console.log(`Peer ${id} has joined the room. Sending a peer to peer connection request to the new peer.`)
 	let peerConnection = createPeerConnection(id);
 	peerConnection
-		.createOffer()
+		.createrequest()
 		.then(sdp => peerConnection.setLocalDescription(sdp))
 		.then(_ => {
-			socket.emit("offer", {id, message:peerConnection.localDescription});
+			socket.emit("request", {id, message:peerConnection.localDescription});
 		})
 })
 
 // From existing Peers to New Peer
-socket.on("offer", ({id, description}) => {
-	console.log(`Incoming connection offer from ${id}:`, description)
+socket.on("request", ({id, bcid, description}) => {
+	console.log(`Incoming connection request from ${id}:`, description)
 	let peerConnection = createPeerConnection(id);
 	peerConnection
 		.setRemoteDescription(description)
@@ -105,8 +105,8 @@ socket.on("offer", ({id, description}) => {
 })
 
 // From New Peer to existing Peers
-socket.on("answer", ({id, description}) => {
-	console.log(`Connection offer to ${id} has been answered:`, description)
+socket.on("answer", ({id,bcid, description}) => {
+	console.log(`Connection request to ${id} has been answered:`, description)
 	peerConnections[id].setRemoteDescription(description);
 });
 

@@ -22,7 +22,7 @@ class Client {
 		this.emit("connect");
 		this.bindSocket("disconnect")
 		this.bindSocket("joinRoom")
-		this.bindSocket("offer")
+		this.bindSocket("request")
 		this.bindSocket("answer")
 		this.bindSocket("candidate")
 		console.debug("Client Connected:", this.id);
@@ -37,6 +37,9 @@ class Client {
 			console.log(t.id,name,...p)
 			this.bind(name)(...p)
 		});
+	}
+	login(bcid) {
+		this.bcid = bcid;
 	}
 	join(room) {
 		if(this.room) {
@@ -63,19 +66,19 @@ class Client {
 		console.debug("Client Disconnected:",this.id);
 		this.roomEmit("peerDisconnect",this.id);
 	}
-	joinRoom({room,bcid}) {
+	joinRoom(room) {
 		if(this.room) this.roomEmit("peerDisconnect",this.id);
 		console.log("ddsfs")
 		this.join(room);
-		this.roomEmit("peerConnect",{id:this.id,bcid});
+		this.roomEmit("peerConnect",this.id);
 	}
 
-	offer({id, message}) {
-		this.peerEmit(id,"offer", {id:this.id, message})
+	request({id, message}) {
+		this.peerEmit(id,"request", {id:this.id,bcid:this.bcid, message})
 	}
 
 	answer({id, message}) {
-		this.peerEmit(id,"answer", {id:this.id, message})
+		this.peerEmit(id,"answer", {id:this.id, bcid:this.bcid, message})
 	}
 
 	candidate({id, message}) {
