@@ -9,10 +9,10 @@ const config = {
 	]
 }
 //let ip = "ws://localhost:3001";
-//let ip = "https://" + location.hostname + ":3001";
-var audioContext = new AudioContext;
-let ip = "tumble-room-vc.herokuapp.com"
+let ip = "http://" + location.hostname + ":3001";
+//let ip = "tumble-room-vc.herokuapp.com"
 let socket = io.connect(ip);
+var audioContext = new AudioContext;
 let audio = {
 	input: new Audio,
 	output: new Audio
@@ -68,29 +68,11 @@ function disconnectFromAllPeers() {
 	}
 }
 
-document.querySelector("button").addEventListener("click", () => {
-	document.querySelector("button").remove();
-	audioContext.resume();
-	let outputDestination = audioContext.createMediaStreamDestination();
-	audio.output.srcObject = outputDestination.stream;
-
-	//Media Constaints
-	const constraints = {
-		audio: true
-	}
-
-	
-	navigator.mediaDevices
-		.getUserMedia(constraints)
-		.then(stream => {
-			console.log("Connected to Microphone Stream", stream)
-
-			audio.input.srcObject = stream
-			socket.emit("joinRoom")
-		})
-		.catch(error => console.error(error))
-
-});
+function joinRoom(room) {
+	disconnectFromAllPeers();
+	socket.emit("joinRoom",room)
+	console.log("Joined room " + room)
+}
 
 
 socket.on("connect", () => {
@@ -145,3 +127,36 @@ socket.on("peerDisconnect", id => {
 window.onunload = window.onbeforeunload = () => {
 	socket.close();
 };
+
+
+
+document.querySelector("button").addEventListener("click", () => {
+	document.querySelector("button").remove();
+	audioContext.resume();
+	let outputDestination = audioContext.createMediaStreamDestination();
+	audio.output.srcObject = outputDestination.stream;
+
+	//Media Constaints
+	const constraints = {
+		audio: true
+	}
+
+	
+	navigator.mediaDevices
+		.getUserMedia(constraints)
+		.then(stream => {
+			console.log("Connected to Microphone Stream", stream)
+
+			audio.input.srcObject = stream
+			joinRoom();
+		})
+		.catch(error => console.error(error))
+
+});
+
+var roomForm = document.getElementById("room-form");
+roomForm.querySelector("button").addEventListener("click",() =>{
+	if(audioContext.state!=="running") return;
+	var roomId = roomForm.querySelector("input#roomId").value;
+	joinRoom(roomId)
+})
