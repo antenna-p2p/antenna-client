@@ -186,6 +186,7 @@ let AntennaClient;
 		setPosition(info = this.getPlayer()) {
 			if (this.omnipresent) return;
 			let target;
+			if(!info) return;
 			if (info.i == this.bcid) {
 				target = this.audioContext.listener;
 			} else {
