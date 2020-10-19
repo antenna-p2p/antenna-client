@@ -81,9 +81,7 @@ let AntennaClient;
 			};
 			//Setup Input Stream
 			let inputStream = this.input.audio.srcObject;
-			if (!inputStream) {
-				inputStream.getTracks().forEach(track => peerConnection.addTrack(track, inputStream));
-			}
+			inputStream.getTracks().forEach(track => peerConnection.addTrack(track, inputStream));
 
 			//Setup Output Stream
 			peerConnection.ontrack = event => {
@@ -97,6 +95,7 @@ let AntennaClient;
 				setupNodeRoation(audioContext.listener);
 				let source = audioContext.createMediaStreamSource(stream);
 				let gain = audioContext.createGain();
+				let panner = audioContext.createPanner();
 				source.connect(gain);
 				gain.gain.value = this._gain;
 
@@ -104,7 +103,6 @@ let AntennaClient;
 					gain.connect(audioContext.destination);
 				} else {
 					//for Positioning
-					let panner = audioContext.createPanner();
 					setupNodeRoation(panner);
 					gain.connect(panner);
 					panner.connect(audioContext.destination);
@@ -250,7 +248,7 @@ let AntennaClient;
 		setGain(value) {
 			this._gain = value;
 			let gainNodes = Object.values(this.peerOutputs).map(peer => peer.gain);
-			gainNodes.forEach(gainNode => gainNode.gain = value);
+			gainNodes.forEach(gainNode => gainNode.gain.value = value);
 
 		}
 
