@@ -2,7 +2,7 @@ let AntennaClient;
 (function () {
 	"use strict";
 	Window.AudioContext = window.AudioContext || window.webkitAudioContext;
-	var defaultOptions = {
+	let defaultOptions = {
 		//ip: "ws://localhost:3001",
 		ip: "tumble-room-vc.herokuapp.com",
 		config: {
@@ -16,20 +16,36 @@ let AntennaClient;
 		static: false
 	};
 
+	function setupNodeRoation(target) {
+		let up = [0, 1, 0];
+		let forward = [0, 0, -1];
+		if (target.forwardX) {
+			[
+				target.forwardX.value,
+				target.forwardY.value,
+				target.forwardZ.value
+			] = forward;
+			[
+				target.upX.value,
+				target.forwardY.value,
+				target.forwardZ.value
+			] = forward;
+		} else {
+			target.setOrientation(...forward, ...up);
+		}
+	}
+
 	AntennaClient = class {
 		constructor(options) {
-			var { ip, config, log } = Object.assign(defaultOptions, options);
+			let { ip, config, log } = Object.assign(defaultOptions, options);
 			this.log = log;
 			this.ip = ip;
 			this.peerConnections = {};
 			this.peerPlayerIds = {};
 			this.peerOutputs = {};
 			this.config = config;
-			this.audioContext = new AudioContext();
-			this.audio = {
-				input: new Audio,
-				output: new Audio
-			};
+			this._gain = 1;
+			this.input = {};
 
 		}
 
@@ -38,7 +54,7 @@ let AntennaClient;
 		}
 
 		getPlayer(id) {
-			if (this.omnipresent||(!this.room && !this.world)) return;
+			if (this.omnipresent || (!this.room && !this.world)) return;
 			let room = this.world.room || this.room;
 			if (!id) id = this.bcid;
 			return room.playerCrumbs.find(p => p.i == id);
@@ -62,34 +78,43 @@ let AntennaClient;
 				}
 			};
 			//Setup Input Stream
-			var inputStream = this.audio.input.srcObject;
-			inputStream.getTracks().forEach(track => peerConnection.addTrack(track, inputStream));
+			let inputStream = this.input.stream;
+			if (!inputStream) {
+				inputStream.getTracks().forEach(track => peerConnection.addTrack(track, inputStream));
+			}
 
 			//Setup Output Stream
 			peerConnection.ontrack = event => {
-				var stream = new MediaStream;
+				let stream = new MediaStream;
 				event.streams[0].getAudioTracks().forEach(track => stream.addTrack(track));
-				var audio = new Audio;
+				let audio = new Audio;
 				audio.muted = true;
 				audio.srcObject = stream;
 				audio.play();
-				let source = this.audioContext.createMediaStreamSource(stream);
+				let audioContext = new AudioContext();
+				setupNodeRoation(audioContext.listener);
+				let source = audioContext.createMediaStreamSource(stream);
+				let gain = audioContext.createGain();
+				source.connect(gain);
+				gain.gain.value = this._gain;
 
 				if (omnipresent || this.omnipresent) {
-					source.connect(this.audioContext.destination);
+					gain.connect(audioContext.destination);
 				} else {
 					//for Positioning
-					var panner = this.audioContext.createPanner();
-					source.connect(panner);
-					panner.connect(this.audioContext.destination);
+					let panner = audioContext.createPanner();
+					setupNodeRoation(panner);
+					gain.connect(panner);
+					panner.connect(audioContext.destination);
 					panner.coneInnerAngle = 360;
 				}
 
 				this.peerOutputs[id] = {
 					stream,
-					audio,
+					source,
+					gain,
 					panner,
-					source
+					audioContext
 				};
 			};
 			return peerConnection;
@@ -139,7 +164,7 @@ let AntennaClient;
 			});
 			this.on("peerConnect", ({ id, bcid }) => {
 				this.log(`Peer ${id} (${bcid || "omnipresent"}) has joined the room. Sending a peer to peer connection request to the new peer.`);
-				var peerConnection = this.createPeerConnection(id, !bcid);
+				let peerConnection = this.createPeerConnection(id, !bcid);
 				peerConnection
 					.createOffer()
 					.then(sdp => peerConnection.setLocalDescription(sdp))
@@ -183,23 +208,10 @@ let AntennaClient;
 			});
 		}
 
-		setPosition(info = this.getPlayer()) {
-			if (this.omnipresent) return;
-			let target;
-			if(!info) return;
-			if (info.i == this.bcid) {
-				target = this.audioContext.listener;
-			} else {
-				let rtcID = this.peerPlayerIds[info.i];
-				let peer = this.peerOutputs[rtcID];
-				if (peer) target = peer.panner;
-			}
-			if (!target) return;
-			this.log("Setting position for", info);
+		setNodePosition(target, pos) {
+			this.log("Setting position for", pos);
 
-			let pos = [info.x, 0, info.y];
-			let up = [0, 1, 0];
-			let forward = [0, 0, -1];
+			let pos = [pos.x, 0, pos.y];
 
 			if (target.positionX) {
 				[
@@ -210,27 +222,37 @@ let AntennaClient;
 			} else {
 				target.setPosition(...pos);
 			}
-			if (target.forwardX) {
-				[
-					target.forwardX.value,
-					target.forwardY.value,
-					target.forwardZ.value
-				] = forward;
-				[
-					target.upX.value,
-					target.forwardY.value,
-					target.forwardZ.value
-				] = forward;
+		}
+
+		setPosition(info = this.getPlayer()) {
+			if (this.omnipresent) return;
+			let target;
+			if (!info) return;
+			if (info.i == this.bcid) {
+				target = this.peerOutputs.map(peer => peer.audioContext.listener);
 			} else {
-				target.setOrientation(...forward, ...up);
+				let rtcID = this.peerPlayerIds[info.i];
+				let peer = this.peerOutputs[rtcID];
+				if (peer) target = peer.panner;
+			}
+			if (!target) return;
+			if (Array.isArray(target)) {
+				target.forEach(target => this.setNodePosition(target, info));
+			} else {
+				this.setNodePosition(target, info);
 			}
 		}
 
-		setupMic() {
-			this.audioContext.resume();
-			let outputDestination = this.audioContext.createMediaStreamDestination();
-			this.audio.output.srcObject = outputDestination.stream;
+		setVolume(value) { this.setGain(value); }
 
+		setGain(value) {
+			this._gain = value;
+			let gainNodes = this.peerOutputs.map(peer => peer.gain);
+			gainNodes.forEach(gainNode => gainNode.gain = value);
+
+		}
+
+		setupMic() {
 			//Media Constaints
 			const constraints = {
 				audio: true
@@ -241,8 +263,8 @@ let AntennaClient;
 					.getUserMedia(constraints)
 					.then(stream => {
 						this.log("Connectec to Microphone", stream);
-						this.audio.input.srcObject = stream;
-						resolve()
+						this.input.stream = stream;
+						resolve();
 					})
 					.catch(error => this.log(error));
 
