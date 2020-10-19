@@ -2,7 +2,7 @@
 // @name         Antenna
 // @description  3D Web based peer to peer voice chat
 // @author       TumbleGamer
-// @version      0.0.11.11
+// @version      0.0.12.12
 // @match        https://boxcritters.com/play/
 // @match        https://boxcritters.com/play/?*
 // @match        https://boxcritters.com/play/#*
@@ -15,7 +15,7 @@
 // @require      https://github.com/SArpnt/EventHandler/raw/master/script.js
 // @require      https://github.com/SArpnt/cardboard/raw/master/script.user.js
 // @require      https://github.com/tumble1999/mod-utils/raw/master/mod-utils.js
-// @require      file:///E:/dev/boxcritters/mods/antenna/AntennaClient.js
+// @require      https://raw.githubusercontent.com/tumble1999/antenna/master/AntennaClient.js
 // ==/UserScript==
 
 (function () {
