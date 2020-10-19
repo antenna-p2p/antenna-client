@@ -33,12 +33,12 @@ let AntennaClient;
 
 		}
 
-		get static() {
+		get omnipresent() {
 			return !this.bcid;
 		}
 
 		getPlayer(id) {
-			if (this.static||(!this.room && !this.world) || (!id && !this.bcid)) return;
+			if (this.omnipresent||(!this.room && !this.world) || !id) return;
 			let room = this.world.room || this.room;
 			if (!id) id = this.bcid;
 			return room.playerCrumbs.find(p => p.i == id);
@@ -75,7 +75,7 @@ let AntennaClient;
 				audio.play();
 				let source = this.audioContext.createMediaStreamSource(stream);
 
-				if (omnipresent || this.static) {
+				if (omnipresent || this.omnipresent) {
 					source.connect(this.audioContext.destination);
 				} else {
 					//for Positioning
@@ -184,7 +184,7 @@ let AntennaClient;
 		}
 
 		setPosition(info = this.getPlayer()) {
-			if (this.static) return;
+			if (this.omnipresent) return;
 			let target;
 			if (info.i == this.bcid) {
 				target = this.audioContext.listener;
