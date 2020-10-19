@@ -3,8 +3,8 @@ let AntennaClient;
 	"use strict";
 	Window.AudioContext = window.AudioContext || window.webkitAudioContext;
 	var defaultOptions = {
-		ip: "ws://localhost:3001",
-		//ip: "tumble-room-vc.herokuapp.com",
+		//ip: "ws://localhost:3001",
+		ip: "tumble-room-vc.herokuapp.com",
 		config: {
 			iceServers: [
 				{
