@@ -151,7 +151,7 @@ let AntennaClient;
 			});
 			this.on("request", ({ id, bcid, description }) => {
 				this.log(`Incoming connection request from ${id} (${bcid || "omnipresent"}) `, description);
-				let peerConnection = this.createPeerConnection(id, !bcid);
+				let peerConnection = this.createPeerConnection(id, !!bcid);
 				peerConnection
 					.setRemoteDescription(description)
 					.then(_ => peerConnection.createAnswer())
