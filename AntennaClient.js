@@ -164,11 +164,7 @@ let AntennaClient;
 		}
 
 		setPosition(info) {
-			if (info) {
-				var rtcID = this.peerPlayerIds.find(p => p == info.i);
-				var peer = this.peerOutputs[rtcID];
-				peer.panner.setPosition(info.x, 0, info.y);
-			} else {
+			if (!info || info.i == this.bcid) {
 				info = this.getPlayer();
 				let listener = this.audioContext.listener;
 				if (listener.setPosition) {
@@ -178,6 +174,10 @@ let AntennaClient;
 					listener.positionZ = info.y;
 				}
 
+			} else {
+				var rtcID = this.peerPlayerIds.find(p => p == info.i);
+				var peer = this.peerOutputs[rtcID];
+				peer.panner.setPosition(info.x, 0, info.y);
 			}
 		}
 

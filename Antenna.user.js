@@ -2,7 +2,7 @@
 // @name         Antenna
 // @description  3D Web based peer to peer voice chat
 // @author       TumbleGamer
-// @version      0.0.12.12
+// @version      0.0.13.13
 // @match        https://boxcritters.com/play/
 // @match        https://boxcritters.com/play/?*
 // @match        https://boxcritters.com/play/#*
@@ -41,6 +41,9 @@
 		socket.on("joinRoom", r => {
 			Antenna.log("Joined Room: " + r.roomId);
 			Antenna.client.joinRoom(r.roomId);
+		});
+		socket.on("X", info => {
+			Antenna.client.setPosition(info);
 		});
 	});
 
