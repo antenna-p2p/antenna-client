@@ -32,9 +32,9 @@ let AntennaClient;
 		}
 
 		getPlayer(id) {
-			if(!this.world || (!id&&!this.bcid)) return;
-			if(!id) id = this.bcid; 
-			return  world.room.playerCrumbs.find(p=>p.i==id);
+			if (!this.world || (!id && !this.bcid)) return;
+			if (!id) id = this.bcid;
+			return world.room.playerCrumbs.find(p => p.i == id);
 		}
 
 		emit(...p) {
@@ -71,7 +71,7 @@ let AntennaClient;
 
 				//for Positioning
 				var panner = this.audioContext.createPanner();
-				source.connect(panner)
+				source.connect(panner);
 				panner.connect(this.audioContext.destination);
 
 				this.peerOutputs[id] = {
@@ -164,15 +164,15 @@ let AntennaClient;
 		}
 
 		setPosition(info) {
-			if(info) {
-				var rtcID = this.peerPlayerIds.find(p=>p==info.i)
-				var peer = this.peerOutputs[rtcID]
-				peer.panner.setPosition(info.x,0.info.y);
+			if (info) {
+				var rtcID = this.peerPlayerIds.find(p => p == info.i);
+				var peer = this.peerOutputs[rtcID];
+				peer.panner.setPosition(info.x, 0, info.y);
 			} else {
 				info = this.getPlayer();
 				let listener = this.audioContext.listener;
-				if(listener.setPosition) {
-					listener.setPosition(info.x,0,info.y)
+				if (listener.setPosition) {
+					listener.setPosition(info.x, 0, info.y);
 				} else {
 					listener.positionX = info.x;
 					listener.positionZ = info.y;
