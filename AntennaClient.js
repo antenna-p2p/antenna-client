@@ -229,7 +229,7 @@ let AntennaClient;
 			let target;
 			if (!info) return;
 			if (info.i == this.bcid) {
-				target = this.peerOutputs.map(peer => peer.audioContext.listener);
+				target = Object.values(this.peerOutputs).map(peer => peer.audioContext.listener);
 			} else {
 				let rtcID = this.peerPlayerIds[info.i];
 				let peer = this.peerOutputs[rtcID];
@@ -247,7 +247,7 @@ let AntennaClient;
 
 		setGain(value) {
 			this._gain = value;
-			let gainNodes = this.peerOutputs.map(peer => peer.gain);
+			let gainNodes = Object.values(this.peerOutputs).map(peer => peer.gain);
 			gainNodes.forEach(gainNode => gainNode.gain = value);
 
 		}
