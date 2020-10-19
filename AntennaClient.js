@@ -3,7 +3,8 @@ let AntennaClient;
 	"use strict";
 	Window.AudioContext = window.AudioContext || window.webkitAudioContext;
 	var defaultOptions = {
-		ip: "tumble-room-vc.herokuapp.com",
+		ip: "ws://localhost:3001",
+		//ip: "tumble-room-vc.herokuapp.com",
 		config: {
 			iceServers: [
 				{
@@ -11,7 +12,8 @@ let AntennaClient;
 				}
 			]
 		},
-		log: console.log
+		log: console.log,
+		static: false
 	};
 
 	AntennaClient = class {
@@ -31,10 +33,15 @@ let AntennaClient;
 
 		}
 
+		get static() {
+			return !this.bcid;
+		}
+
 		getPlayer(id) {
-			if (!this.world || (!id && !this.bcid)) return;
+			if (this.static||(!this.room && !this.world) || (!id && !this.bcid)) return;
+			let room = this.world.room || this.room;
 			if (!id) id = this.bcid;
-			return world.room.playerCrumbs.find(p => p.i == id);
+			return room.playerCrumbs.find(p => p.i == id);
 		}
 
 		emit(...p) {
@@ -45,7 +52,7 @@ let AntennaClient;
 			if (this.socket) this.socket.on(...p);
 		}
 
-		createPeerConnection(id) {
+		createPeerConnection(id, omnipresent) {
 			let peerConnection = new RTCPeerConnection(this.config);
 			this.peerConnections[id] = peerConnection;
 
@@ -68,12 +75,15 @@ let AntennaClient;
 				audio.play();
 				let source = this.audioContext.createMediaStreamSource(stream);
 
-
-				//for Positioning
-				var panner = this.audioContext.createPanner();
-				source.connect(panner);
-				panner.connect(this.audioContext.destination);
-				panner.coneInnerAngle = 360;
+				if (omnipresent || this.static) {
+					source.connect(this.audioContext.destination);
+				} else {
+					//for Positioning
+					var panner = this.audioContext.createPanner();
+					source.connect(panner);
+					panner.connect(this.audioContext.destination);
+					panner.coneInnerAngle = 360;
+				}
 
 				this.peerOutputs[id] = {
 					stream,
@@ -106,9 +116,12 @@ let AntennaClient;
 			this.emit("login", id);
 		}
 
-		joinRoom(room) {
+		joinRoom(room = this.room.roomId) {
 			this.disconnectFromAllPeers();
-			this.emit("joinRoom", room);
+			if (!room.roomId) room = { roomId: room };
+			this.emit("joinRoom", room.roomId);
+			this.room = room;
+			this.setPosition();
 		}
 
 		close() {
@@ -119,20 +132,26 @@ let AntennaClient;
 			this.socket = io.connect(this.ip);
 			this.on("connect", () => {
 				this.log("Connected to " + this.ip);
+				if (this.room) {
+					this.log("Rejoining " + this.room.roomId);
+					this.joinRoom();
+				}
 			});
-			this.on("peerConnect", id => {
-				this.log(`Peer ${id} has joined the room. Sending a peer to peer connection request to the new peer.`);
-				var peerConnection = this.createPeerConnection(id);
+			this.on("peerConnect", ({ id, bcid }) => {
+				this.log(`Peer ${id} (${bcid || "omnipresent"}) has joined the room. Sending a peer to peer connection request to the new peer.`);
+				var peerConnection = this.createPeerConnection(id, !!bcid);
 				peerConnection
 					.createOffer()
 					.then(sdp => peerConnection.setLocalDescription(sdp))
 					.then(_ => {
 						this.emit("request", { id, description: peerConnection.localDescription });
 					});
+				this.peerPlayerIds[bcid] = id;
+				this.setPosition(this.getPlayer(bcid));
 			});
 			this.on("request", ({ id, bcid, description }) => {
-				this.log(`Incoming connection request from ${id}`, description);
-				let peerConnection = this.createPeerConnection(id);
+				this.log(`Incoming connection request from ${id} (${bcid || "omnipresent"}) `, description);
+				let peerConnection = this.createPeerConnection(id, !bcid);
 				peerConnection
 					.setRemoteDescription(description)
 					.then(_ => peerConnection.createAnswer())
@@ -141,13 +160,13 @@ let AntennaClient;
 						this.emit("answer", { id, description: peerConnection.localDescription });
 					});
 				this.peerPlayerIds[bcid] = id;
+				this.setPosition(this.getPlayer(bcid));
 			});
 
 			// From New Peer to existing Peers
-			this.on("answer", ({ id, bcid, description }) => {
-				this.log(`Connection request to ${id} has been answered:`, description);
+			this.on("answer", ({ id, description }) => {
+				this.log(`Connection request to  ${id} has been answered:`, description);
 				this.peerConnections[id].setRemoteDescription(description);
-				this.peerPlayerIds[id] = bcid;
 			});
 
 			this.on("candidate", ({ id, candidate }) => {
@@ -164,22 +183,45 @@ let AntennaClient;
 			});
 		}
 
-		setPosition(info) {
-			if (!info || info.i == this.bcid) {
-				info = this.getPlayer();
-				let listener = this.audioContext.listener;
-				if (listener.setPosition) {
-					listener.setPosition(info.x, 0, info.y);
-				} else {
-					listener.positionX = info.x;
-					listener.positionZ = info.y;
-				}
-
+		setPosition(info = this.getPlayer()) {
+			if (this.static) return;
+			let target;
+			if (info.i == this.bcid) {
+				target = this.audioContext.listener;
 			} else {
-				var rtcID = this.peerPlayerIds[info.i];
-				var peer = this.peerOutputs[rtcID];
-				if(!peer) return;
-				peer.panner.setPosition(info.x, 0, info.y);
+				let rtcID = this.peerPlayerIds[info.i];
+				let peer = this.peerOutputs[rtcID];
+				if (peer) target = peer.panner;
+			}
+			if (!target) return;
+			this.log("Setting position for", info);
+
+			let pos = [info.x, 0, info.y];
+			let up = [0, 1, 0];
+			let forward = [0, 0, -1];
+
+			if (target.positionX) {
+				[
+					target.positionX.value,
+					target.positionY.value,
+					target.positionZ.value
+				] = pos;
+			} else {
+				target.setPosition(...pos);
+			}
+			if (target.forwardX) {
+				[
+					target.forwardX.value,
+					target.forwardY.value,
+					target.forwardZ.value
+				] = forward;
+				[
+					target.upX.value,
+					target.forwardY.value,
+					target.forwardZ.value
+				] = forward;
+			} else {
+				target.setOrientation(...forward, ...up);
 			}
 		}
 
@@ -193,13 +235,17 @@ let AntennaClient;
 				audio: true
 			};
 
-			navigator.mediaDevices
-				.getUserMedia(constraints)
-				.then(stream => {
-					this.log("Connectec to Microphone", stream);
-					this.audio.input.srcObject = stream;
-				})
-				.catch(error => this.log(error));
+			return new Promise((resolve, reject) => {
+				navigator.mediaDevices
+					.getUserMedia(constraints)
+					.then(stream => {
+						this.log("Connectec to Microphone", stream);
+						this.audio.input.srcObject = stream;
+						resolve()
+					})
+					.catch(error => this.log(error));
+
+			});
 		}
 	};
 })();
