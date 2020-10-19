@@ -86,7 +86,9 @@ let AntennaClient;
 			}
 		}
 
-		login(id) {
+		login(world,id) {
+			if(!world) return;
+			this.world = world;
 			this.emit("login",id)
 		}
 
