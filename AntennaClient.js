@@ -31,6 +31,12 @@ let AntennaClient;
 
 		}
 
+		getPlayer(id) {
+			if(!this.world || (!id&&!this.bcid)) return;
+			if(!id) id = this.bcid; 
+			return  world.room.playerCrumbs.find(p=>p.i==id);
+		}
+
 		emit(...p) {
 			if (this.socket) this.socket.emit(...p);
 		}
@@ -61,11 +67,17 @@ let AntennaClient;
 				audio.srcObject = stream;
 				audio.play();
 				let source = this.audioContext.createMediaStreamSource(stream);
-				source.connect(this.audioContext.destination);
+
+
+				//for Positioning
+				var panner = this.audioContext.createPanner();
+				source.connect(panner)
+				panner.connect(this.audioContext.destination);
 
 				this.peerOutputs[id] = {
 					stream,
 					audio,
+					panner,
 					source
 				};
 			};
@@ -89,6 +101,7 @@ let AntennaClient;
 		login(world, id) {
 			if (!world) return;
 			this.world = world;
+			this.bcid = id;
 			this.emit("login", id);
 		}
 
@@ -148,6 +161,24 @@ let AntennaClient;
 				this.log(`Peer ${id} has left the room`);
 				this.disconnectFromPeer(id);
 			});
+		}
+
+		setPosition(info) {
+			if(info) {
+				var rtcID = this.peerPlayerIds.find(p=>p==info.i)
+				var peer = this.peerOutputs[rtcID]
+				peer.panner.setPosition(info.x,info.y);
+			} else {
+				info = this.getPlayer();
+				let listener = this.audioContext.listener;
+				if(listener.setPosition) {
+					listener.setPosition(info.x,0,info.y)
+				} else {
+					listener.positionX = info.x;
+					listener.positionZ = info.y;
+				}
+
+			}
 		}
 
 		setupMic() {
