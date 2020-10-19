@@ -139,7 +139,7 @@ let AntennaClient;
 			});
 			this.on("peerConnect", ({ id, bcid }) => {
 				this.log(`Peer ${id} (${bcid || "omnipresent"}) has joined the room. Sending a peer to peer connection request to the new peer.`);
-				var peerConnection = this.createPeerConnection(id, !!bcid);
+				var peerConnection = this.createPeerConnection(id, !bcid);
 				peerConnection
 					.createOffer()
 					.then(sdp => peerConnection.setLocalDescription(sdp))
@@ -151,7 +151,7 @@ let AntennaClient;
 			});
 			this.on("request", ({ id, bcid, description }) => {
 				this.log(`Incoming connection request from ${id} (${bcid || "omnipresent"}) `, description);
-				let peerConnection = this.createPeerConnection(id, !!bcid);
+				let peerConnection = this.createPeerConnection(id, !bcid);
 				peerConnection
 					.setRemoteDescription(description)
 					.then(_ => peerConnection.createAnswer())
