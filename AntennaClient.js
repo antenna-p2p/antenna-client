@@ -167,7 +167,7 @@ let AntennaClient;
 			if(info) {
 				var rtcID = this.peerPlayerIds.find(p=>p==info.i)
 				var peer = this.peerOutputs[rtcID]
-				peer.panner.setPosition(info.x,info.y);
+				peer.panner.setPosition(info.x,0.info.y);
 			} else {
 				info = this.getPlayer();
 				let listener = this.audioContext.listener;
