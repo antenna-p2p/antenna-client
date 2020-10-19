@@ -177,6 +177,7 @@ let AntennaClient;
 			} else {
 				var rtcID = this.peerPlayerIds[info.i];
 				var peer = this.peerOutputs[rtcID];
+				if(!peer) return;
 				peer.panner.setPosition(info.x, 0, info.y);
 			}
 		}
