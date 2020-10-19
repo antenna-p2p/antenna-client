@@ -139,7 +139,7 @@ let AntennaClient;
 					.then(_ => {
 						this.emit("answer", { id, description: peerConnection.localDescription });
 					});
-				this.peerPlayerIds[id] = bcid;
+				this.peerPlayerIds[bcid] = id;
 			});
 
 			// From New Peer to existing Peers
@@ -175,7 +175,7 @@ let AntennaClient;
 				}
 
 			} else {
-				var rtcID = this.peerPlayerIds.find(p => p == info.i);
+				var rtcID = this.peerPlayerIds[info.i];
 				var peer = this.peerOutputs[rtcID];
 				peer.panner.setPosition(info.x, 0, info.y);
 			}
