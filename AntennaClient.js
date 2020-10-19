@@ -38,7 +38,7 @@ let AntennaClient;
 		}
 
 		getPlayer(id) {
-			if (this.omnipresent||(!this.room && !this.world) || !id) return;
+			if (this.omnipresent||(!this.room && !this.world)) return;
 			let room = this.world.room || this.room;
 			if (!id) id = this.bcid;
 			return room.playerCrumbs.find(p => p.i == id);
