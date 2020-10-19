@@ -211,7 +211,7 @@ let AntennaClient;
 		setNodePosition(target, pos) {
 			this.log("Setting position for", pos);
 
-			let pos = [pos.x, 0, pos.y];
+			pos = [pos.x, 0, pos.y];
 
 			if (target.positionX) {
 				[
