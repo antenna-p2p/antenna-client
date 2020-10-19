@@ -45,7 +45,9 @@ let AntennaClient;
 			this.peerOutputs = {};
 			this.config = config;
 			this._gain = 1;
-			this.input = {};
+			this.input = {
+				audio: new Audio
+			};
 
 		}
 
@@ -78,7 +80,7 @@ let AntennaClient;
 				}
 			};
 			//Setup Input Stream
-			let inputStream = this.input.stream;
+			let inputStream = this.input.audio.srcObject;
 			if (!inputStream) {
 				inputStream.getTracks().forEach(track => peerConnection.addTrack(track, inputStream));
 			}
@@ -263,7 +265,7 @@ let AntennaClient;
 					.getUserMedia(constraints)
 					.then(stream => {
 						this.log("Connectec to Microphone", stream);
-						this.input.stream = stream;
+						this.input.audio.srcObject = stream;
 						resolve();
 					})
 					.catch(error => this.log(error));
