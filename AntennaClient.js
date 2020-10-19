@@ -73,6 +73,7 @@ let AntennaClient;
 				var panner = this.audioContext.createPanner();
 				source.connect(panner);
 				panner.connect(this.audioContext.destination);
+				panner.coneInnerAngle = 360;
 
 				this.peerOutputs[id] = {
 					stream,
