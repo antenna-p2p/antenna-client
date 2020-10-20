@@ -94,7 +94,6 @@ let AntennaClient;
 			let textWidth = name.children[0].getMeasuredWidth();
 			name.addChild(circle);
 			circle.x = -textWidth / 2 - circleRadius - margin;
-			console.log(colorCommand)
 			return {
 				shape: circle,
 				setColor: (color) => {
