@@ -26,6 +26,7 @@ class Client {
 		this.bindSocket("request");
 		this.bindSocket("answer");
 		this.bindSocket("candidate");
+		this.bindSocket("status");
 		console.debug("Client Connected:", this.id);
 	}
 
