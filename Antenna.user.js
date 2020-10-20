@@ -2,7 +2,7 @@
 // @name         Antenna
 // @description  3D Web based peer to peer voice chat
 // @author       TumbleGamer
-// @version      0.0.18.18
+// @version      0.0.19.19
 // @match        https://boxcritters.com/play/
 // @match        https://boxcritters.com/play/?*
 // @match        https://boxcritters.com/play/#*
@@ -22,18 +22,18 @@
 
 (function () {
 	"use strict";
-	var Antenna = new TumbleMod({
+	let Antenna = new TumbleMod({
 		abriv: "Ant",
 		cardboard: true,
 		client: new AntennaClient(),
 		testDots: () => {
 			Object.values(Antenna.world.stage.children[0].children[0].players).forEach(player => {
-				var margin = 3;
-				var circleRadius = 6;
-				var circle = new createjs.Shape();
+				let margin = 3;
+				let circleRadius = 6;
+				let circle = new createjs.Shape();
 				circle.graphics.beginFill("green").drawCircle(0, 20, circleRadius);
-				var name = player.nickname;
-				var textWidth = name.children[0].getMeasuredWidth();
+				let name = player.nickname;
+				let textWidth = name.children[0].getMeasuredWidth();
 				name.addChild(circle);
 				circle.x = -textWidth / 2 - circleRadius - margin;
 			});
@@ -43,16 +43,16 @@
 	Antenna.client.log = Antenna.log.bind(Antenna);
 
 	function createDot(id) {
-		var players = Antenna.world.stage.children[0].children[0].players;
-		var player = players[id];
-		var margin = 3;
-		var circleRadius = 6;
-		var circle = new createjs.Shape();
-		var circleGraphics = circle.graphics;
-		var colorCommand = circleGraphics.beginFill("green").command;
+		let players = Antenna.world.stage.children[0].children[0].players;
+		let player = players[id];
+		let margin = 3;
+		let circleRadius = 6;
+		let circle = new createjs.Shape();
+		let circleGraphics = circle.graphics;
+		let colorCommand = circleGraphics.beginFill("green").command;
 		circleGraphics.drawCircle(0, 20, circleRadius);
-		var name = player.nickname;
-		var textWidth = name.children[0].getMeasuredWidth();
+		let name = player.nickname;
+		let textWidth = name.children[0].getMeasuredWidth();
 		name.addChild(circle);
 		circle.x = -textWidth / 2 - circleRadius - margin;
 		return {
@@ -94,60 +94,131 @@
 	});
 	window.addEventListener("unload", _ => Antenna.client.close());
 	window.addEventListener("beforeunload", _ => Antenna.client.close());
-	{
-		var settingsModel = new Popper();
-		settingsModel.setContent("Antenna Settings" + Popper.closeButton, "", `Antenna created by <a href="https://boxcrittersmods.ga/authors/tumblegamer/" target="_blank">TumbleGamer</a>`);
-		var body = settingsModel.getBodyNode();
-		var gainSlider = createSlider("gain", "Gain");
-		gainSlider.input.addEventListener("input", () => {
-			console.log("gain changed " + gainSlider.input.value);
-			var value = -3 + (gainSlider.input.value * 6);
-			Antenna.client.setGain(value);
-		});
-		gainSlider.input.value = 200 / 3;
-		body.appendChild(gainSlider.container);
+
+	function createLabal(text, idFor) {
+		let label = document.createElement("label");
+		label.innerText = text;
+		label.htmlFor = idFor;
+		return label;
 	}
 
-	function createSlider(id, title) {
-		var container = document.createElement("div");
-		var label = document.createElement("label");
-		container.appendChild(label);
-		label.innerText = title;
-		var input = document.createElement("input");
-		container.appendChild(input);
+	function createSlider(id, value, oninput) {
+		let input = document.createElement("input");
 		input.type = "range";
 		input.id = id;
 		input.class = "custom-range";
-		return { container, input };
+		input.value = value;
+		input.oninput = () => oninput(input);
+		return input;
+	}
+
+	function createDropdown(id, options, selected, onchange) {
+
+		let input = document.createElement("select");
+		input.id = id;
+		input.classList.add("custom-select");
+		for (let option of options) {
+			let optionElement = document.createElement("option");
+			optionElement.value = option.value;
+			optionElement.innerText = option.text;
+			optionElement.style.whiteSpace = "none";
+			if (selected(option)) optionElement.selected = true;
+			input.appendChild(optionElement);
+		}
+		input.onchange = () => onchange(input, input.selectedOptions);
+		return input;
 	}
 
 	/**
 	 * 
 	 * @param {AudioParam} audioParam 
 	 */
-	function createSliderFromAudioParam(id, title, audioParam) {
+	function createSliderFromAudioParam(id, audioParam) {
 		id = "antenna-setting-" + id;
-		var slider = createSlider(id, title);
-		slider.input.addEventListener("input", () => {
-			var range = audioParam.maxValue - audioParam.maxValue;
-			var value = audioParam.minValue + slider.input.value * range;
+		let slider = createSlider(id, input => {
+			let range = audioParam.maxValue - audioParam.maxValue;
+			let value = audioParam.minValue + input.value * range;
 			audioParam.value = value;
 		});
-		slider.input.value = audioParam.value;
+		slider.value = audioParam.value;
 		return slider.container;
 	}
+
+	function createInputGroup(name) {
+		let group = document.createElement("div");
+		group.classList.add("input-group", "mb-3", "row");
+
+		let prepend = document.createElement("div");
+		prepend.classList.add("input-group-prepend", "col-sm");
+		group.appendChild(prepend);
+		let title = document.createElement("label");
+		title.innerText = name;
+		title.classList.add("input-group-text");
+		prepend.appendChild(title);
+		return group;
+	}
+
+
+	let settingsModel = new Popper();
+	console.log(settingsModel);
+	settingsModel.element.querySelector(".modal-dialog").style["max-width"] = "1000px";
+	settingsModel.setContent("Antenna Settings" + Popper.closeButton, "", `Antenna created by <a href="https://boxcrittersmods.ga/authors/tumblegamer/" target="_blank">TumbleGamer</a>`);
+	async function RegenerateSettings() {
+		let body = settingsModel.getBodyNode();
+		body.innerHTML = "";
+		let gainSettings = createInputGroup("Gain");
+		body.appendChild(gainSettings);
+		let gainSlider = createSlider("gain", 200 / 3, input => {
+			console.log("gain changed " + input.value);
+			let value = -3 + (input.value * 6);
+			Antenna.client.setGain(value);
+		});
+		gainSlider.classList.add("col-sm");
+		gainSettings.appendChild(gainSlider);
+
+
+		let deviceSettings = createInputGroup("Devices");
+		body.appendChild(deviceSettings);
+
+		let inputDevices = await Antenna.client.getDevices("input");
+		let inputDeviceSelector = createDropdown("select-input",
+			inputDevices.map(device => ({ value: device.deviceId, text: device.label })),
+			option => option.value == Antenna.client.settings.inputId,
+			(input, selected) => {
+				let option = selected[0];
+				Antenna.client.setMicrophone(option.value);
+			}
+		);
+		inputDeviceSelector.classList.add("col-sm");
+		deviceSettings.appendChild(inputDeviceSelector);
+
+		let outputDevices = await Antenna.client.getDevices("output");
+		let outputDeviceSelector = createDropdown("select-output",
+			outputDevices.map(device => ({ value: device.deviceId, text: device.label })),
+			option => option.value == Antenna.client.settings.inputId,
+			(input, selected) => {
+				let option = selected[0];
+				//Antenna.client.setMicrophone(option.value);
+			}
+		);
+
+		outputDeviceSelector.classList.add("col-sm");
+		deviceSettings.appendChild(outputDeviceSelector);
+	}
+
 	function DisplaySettings() {
 		settingsModel.show();
+		RegenerateSettings();
 	}
 
 	TumbleMod.onDocumentLoaded()
 		.then(() => {
 			Antenna.log("Setting up Microphone");
-			Antenna.client.setupMic();
+			Antenna.client.setMicrophone();
 		});
 
 	if (typeof BCMacros !== "undefined") {
-		var macroPack = BCMacros.createMacroPack("Antenna");
+		let macroPack = BCMacros.createMacroPack("Antenna");
 		Antenna.settingsMacro = macroPack.createMacro({
 			name: "Antenna",
 			action: () => { DisplaySettings(); },

@@ -44,7 +44,11 @@ let AntennaClient;
 			this.peerPlayerIds = {};
 			this.peerOutputs = {};
 			this.config = config;
-			this._gain = 1;
+			this.settings = {
+				gain:1,
+				inputId:"communications",
+				outputId:"communications",
+			}
 			this.input = {
 				audio: new Audio
 			};
@@ -97,7 +101,7 @@ let AntennaClient;
 				let gain = audioContext.createGain();
 				let panner = audioContext.createPanner();
 				source.connect(gain);
-				gain.gain.value = this._gain;
+				gain.gain.value = this.settings.gain;
 
 				if (omnipresent || this.omnipresent) {
 					gain.connect(audioContext.destination);
@@ -246,16 +250,17 @@ let AntennaClient;
 		setVolume(value) { this.setGain(value); }
 
 		setGain(value) {
-			this._gain = value;
+			this.settings.gain = value;
 			let gainNodes = Object.values(this.peerOutputs).map(peer => peer.gain);
 			gainNodes.forEach(gainNode => gainNode.gain.value = value);
 
 		}
 
-		setupMic() {
+		setMicrophone(deviceId="communications") {
+			this.settings.inputId = deviceId;
 			//Media Constaints
 			const constraints = {
-				audio: true
+				audio: {deviceId}
 			};
 
 			return new Promise((resolve, reject) => {
@@ -269,6 +274,11 @@ let AntennaClient;
 					.catch(error => this.log(error));
 
 			});
+		}
+
+		async getDevices(kind="input"){
+			var devices = await navigator.mediaDevices.enumerateDevices()
+			return devices.filter(device=>device.kind=="audio"+kind);
 		}
 	};
 })();
