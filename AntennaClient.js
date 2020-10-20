@@ -265,7 +265,9 @@ let AntennaClient;
 				this.disconnectFromPeer(id);
 			});
 
-			this.on("status", this.updateStatus.bind(this));
+			this.on("status", ({id,status})=>{
+				this.updateStatus({id,status})
+			});
 		}
 
 		setNodePosition(target, pos) {
