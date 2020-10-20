@@ -2,7 +2,7 @@
 // @name         Antenna
 // @description  3D Web based peer to peer voice chat
 // @author       TumbleGamer
-// @version      0.0.20.20
+// @version      0.0.21.21
 // @match        https://boxcritters.com/play/
 // @match        https://boxcritters.com/play/?*
 // @match        https://boxcritters.com/play/#*
@@ -29,7 +29,7 @@
 		testDots: () => {
 			Object.values(Antenna.world.stage.children[0].children[0].players).forEach(player => {
 				let margin = 3;
-				let circleRadius = 6;
+				let circleRadius = 4;
 				let circle = new createjs.Shape();
 				circle.graphics.beginFill("green").drawCircle(0, 20, circleRadius);
 				let name = player.nickname;
