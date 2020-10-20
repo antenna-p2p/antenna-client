@@ -142,14 +142,15 @@ let AntennaClient;
 					panner.coneInnerAngle = 360;
 				}
 
-				this.peerOutputs[id] = {
+				Object.assign(this.peerOutputs[id],{
 					stream,
 					source,
 					gain,
 					panner,
 					audioContext
-				};
+				});
 			};
+			this.peerOutputs[id] = {};
 			return peerConnection;
 		}
 
