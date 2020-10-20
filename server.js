@@ -74,7 +74,7 @@ class Client {
 	}
 
 	status(status) {
-		this.roomEmit("status",{id:this.id,status:this.status})
+		this.roomEmit("status",{id:this.id,status})
 	}
 
 	request({ id, description }) {
