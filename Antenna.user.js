@@ -37,31 +37,9 @@
 				name.addChild(circle);
 				circle.x = -textWidth / 2 - circleRadius - margin;
 			});
-		},
-		createDot
+		}
 	});
 	Antenna.client.log = Antenna.log.bind(Antenna);
-
-	function createDot(id) {
-		let players = Antenna.world.stage.children[0].children[0].players;
-		let player = players[id];
-		let margin = 3;
-		let circleRadius = 6;
-		let circle = new createjs.Shape();
-		let circleGraphics = circle.graphics;
-		let colorCommand = circleGraphics.beginFill("green").command;
-		circleGraphics.drawCircle(0, 20, circleRadius);
-		let name = player.nickname;
-		let textWidth = name.children[0].getMeasuredWidth();
-		name.addChild(circle);
-		circle.x = -textWidth / 2 - circleRadius - margin;
-		return {
-			shape: circle,
-			setColor: (color) => {
-				colorCommand.style = color;
-			}
-		};
-	}
 
 	cardboard.on("runScripts", function () {
 		if (io) Antenna.log("Socket.io's 'io' variable has been found");
@@ -170,7 +148,7 @@
 		body.appendChild(gainSettings);
 		let gainSlider = createSlider("gain", 200 / 3, input => {
 			console.log("gain changed " + input.value);
-			let value = -3 + (input.value * 6);
+			let value = -3 + (input.value/100 * 6);
 			Antenna.client.setGain(value);
 		});
 		gainSlider.classList.add("col-sm");

@@ -73,6 +73,10 @@ class Client {
 		this.roomEmit("peerConnect", {id:this.id,bcid:this.bcid});
 	}
 
+	status(status) {
+		this.roomEmit("status",{id:this.id,status:this.status})
+	}
+
 	request({ id, description }) {
 		this.peerEmit(id, "request", { id: this.id, bcid: this.bcid, description });
 	}

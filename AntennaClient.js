@@ -44,11 +44,16 @@ let AntennaClient;
 			this.peerPlayerIds = {};
 			this.peerOutputs = {};
 			this.config = config;
+
+			this.devices = {
+				input: null,
+				output: null
+			};
 			this.settings = {
-				gain:1,
-				inputId:"communications",
-				outputId:"communications",
-			}
+				gain: 1,
+				inputId: "communications",
+				outputId: "communications",
+			};
 			this.input = {
 				audio: new Audio
 			};
@@ -72,6 +77,31 @@ let AntennaClient;
 
 		on(...p) {
 			if (this.socket) this.socket.on(...p);
+		}
+
+		async createDot(id) {
+			if (!this.world) return;
+			if (!this.roomLoaded) await new Promise(resolve => setTimeout(resolve, 0));
+			let players = this.world.stage.children[0].children[0].players;
+			let player = players[id];
+			let margin = 3;
+			let circleRadius = 6;
+			let circle = new createjs.Shape();
+			let circleGraphics = circle.graphics;
+			let colorCommand = circleGraphics.beginFill("grey").command;
+			circleGraphics.drawCircle(0, 20, circleRadius);
+			let name = player.nickname;
+			let textWidth = name.children[0].getMeasuredWidth();
+			name.addChild(circle);
+			circle.x = -textWidth / 2 - circleRadius - margin;
+			console.log(colorCommand)
+			return {
+				shape: circle,
+				setColor: (color) => {
+					colorCommand.style = color;
+				},
+				get style() { return colorCommand.style}
+			};
 		}
 
 		createPeerConnection(id, omnipresent) {
@@ -124,6 +154,18 @@ let AntennaClient;
 			return peerConnection;
 		}
 
+		updateStatus({ id, status }={}) {
+			var target;
+			if (id) {
+				target = this.peerOutputs[id];
+			} else {
+				target = this;
+				id = this.bcid;
+				status = this.settings;
+			}
+			target.statusDot.setColor(status.gain < 0 ? "red" : "green");
+		}
+
 		disconnectFromPeer(id) {
 			if (!this.peerConnections[id]) return;
 			this.peerConnections[id].close();
@@ -146,11 +188,20 @@ let AntennaClient;
 		}
 
 		joinRoom(room = this.room.roomId) {
+			this.roomLoaded = false;
 			this.disconnectFromAllPeers();
 			if (!room.roomId) room = { roomId: room };
 			this.emit("joinRoom", room.roomId);
 			this.room = room;
 			this.setPosition();
+
+			this.createDot(this.bcid).then(statusDot=>{
+				this.statusDot = statusDot
+				this.updateStatus();
+			});
+			setTimeout(_ => {
+				this.roomLoaded = true;
+			}, 0);
 		}
 
 		close() {
@@ -166,7 +217,7 @@ let AntennaClient;
 					this.joinRoom();
 				}
 			});
-			this.on("peerConnect", ({ id, bcid }) => {
+			this.on("peerConnect", async ({ id, bcid }) => {
 				this.log(`Peer ${id} (${bcid || "omnipresent"}) has joined the room. Sending a peer to peer connection request to the new peer.`);
 				let peerConnection = this.createPeerConnection(id, !bcid);
 				peerConnection
@@ -176,9 +227,10 @@ let AntennaClient;
 						this.emit("request", { id, description: peerConnection.localDescription });
 					});
 				this.peerPlayerIds[bcid] = id;
+				this.peerOutputs.statusDot = await this.createDot(bcid);
 				this.setPosition(this.getPlayer(bcid));
 			});
-			this.on("request", ({ id, bcid, description }) => {
+			this.on("request", async ({ id, bcid, description }) => {
 				this.log(`Incoming connection request from ${id} (${bcid || "omnipresent"}) `, description);
 				let peerConnection = this.createPeerConnection(id, !bcid);
 				peerConnection
@@ -187,8 +239,10 @@ let AntennaClient;
 					.then(sdp => peerConnection.setLocalDescription(sdp))
 					.then(_ => {
 						this.emit("answer", { id, description: peerConnection.localDescription });
+						this.emit("status", this.settings);
 					});
 				this.peerPlayerIds[bcid] = id;
+				this.peerOutputs.statusDot = await this.createDot(bcid);
 				this.setPosition(this.getPlayer(bcid));
 			});
 
@@ -196,6 +250,7 @@ let AntennaClient;
 			this.on("answer", ({ id, description }) => {
 				this.log(`Connection request to  ${id} has been answered:`, description);
 				this.peerConnections[id].setRemoteDescription(description);
+				this.emit("status", this.settings);
 			});
 
 			this.on("candidate", ({ id, candidate }) => {
@@ -210,6 +265,8 @@ let AntennaClient;
 				this.log(`Peer ${id} has left the room`);
 				this.disconnectFromPeer(id);
 			});
+
+			this.on("status", this.updateStatus.bind(this));
 		}
 
 		setNodePosition(target, pos) {
@@ -253,21 +310,23 @@ let AntennaClient;
 			this.settings.gain = value;
 			let gainNodes = Object.values(this.peerOutputs).map(peer => peer.gain);
 			gainNodes.forEach(gainNode => gainNode.gain.value = value);
-
+			this.updateStatus();
+			this.emit("status", this.settings);
 		}
 
-		setMicrophone(deviceId="communications") {
+		setMicrophone(deviceId = "communications") {
 			this.settings.inputId = deviceId;
 			//Media Constaints
 			const constraints = {
-				audio: {deviceId}
+				audio: { deviceId }
 			};
 
 			return new Promise((resolve, reject) => {
 				navigator.mediaDevices
 					.getUserMedia(constraints)
 					.then(stream => {
-						this.log("Connectec to Microphone", stream);
+						this.log("Connected to Microphone", stream);
+						this.devices.input = stream;
 						this.input.audio.srcObject = stream;
 						resolve();
 					})
@@ -276,9 +335,9 @@ let AntennaClient;
 			});
 		}
 
-		async getDevices(kind="input"){
-			var devices = await navigator.mediaDevices.enumerateDevices()
-			return devices.filter(device=>device.kind=="audio"+kind);
+		async getDevices(kind = "input") {
+			var devices = await navigator.mediaDevices.enumerateDevices();
+			return devices.filter(device => device.kind == "audio" + kind);
 		}
 	};
 })();
