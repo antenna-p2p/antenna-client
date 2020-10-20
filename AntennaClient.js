@@ -85,7 +85,7 @@ let AntennaClient;
 			let players = this.world.stage.children[0].children[0].players;
 			let player = players[id];
 			let margin = 3;
-			let circleRadius = 4;
+			let circleRadius = 4.5;
 			let circle = new createjs.Shape();
 			let circleGraphics = circle.graphics;
 			let colorCommand = circleGraphics.beginFill("grey").command;
