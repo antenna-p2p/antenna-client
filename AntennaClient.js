@@ -226,7 +226,7 @@ let AntennaClient;
 						this.emit("request", { id, description: peerConnection.localDescription });
 					});
 				this.peerPlayerIds[bcid] = id;
-				this.peerOutputs.statusDot = await this.createDot(bcid);
+				this.peerOutputs[id].statusDot = await this.createDot(bcid);
 				this.setPosition(this.getPlayer(bcid));
 			});
 			this.on("request", async ({ id, bcid, description }) => {
@@ -241,7 +241,7 @@ let AntennaClient;
 						this.emit("status", this.settings);
 					});
 				this.peerPlayerIds[bcid] = id;
-				this.peerOutputs.statusDot = await this.createDot(bcid);
+				this.peerOutputs[id].statusDot = await this.createDot(bcid);
 				this.setPosition(this.getPlayer(bcid));
 			});
 
