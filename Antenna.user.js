@@ -2,7 +2,7 @@
 // @name         Antenna
 // @description  3D Web based peer to peer voice chat
 // @author       TumbleGamer
-// @version      0.1.0.22
+// @version      0.1.1.23
 // @match        https://boxcritters.com/play/
 // @match        https://boxcritters.com/play/?*
 // @match        https://boxcritters.com/play/#*
@@ -138,7 +138,6 @@
 
 
 	let settingsModel = new Popper();
-	console.log(settingsModel);
 	settingsModel.element.querySelector(".modal-dialog").style["max-width"] = "1000px";
 	settingsModel.setContent("Antenna Settings" + Popper.closeButton, "", `Antenna created by <a href="https://boxcrittersmods.ga/authors/tumblegamer/" target="_blank">TumbleGamer</a>`);
 	async function RegenerateSettings() {
@@ -148,7 +147,7 @@
 		body.appendChild(gainSettings);
 		let gainSlider = createSlider("gain", 200 / 3, input => {
 			console.log("gain changed " + input.value);
-			let value = -3 + (input.value/100 * 6);
+			let value = -3 + (input.value / 100 * 6);
 			Antenna.client.setGain(value);
 		});
 		gainSlider.classList.add("col-sm");
