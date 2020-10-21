@@ -2,7 +2,7 @@
 // @name         Antenna
 // @description  3D Web based peer to peer voice chat
 // @author       TumbleGamer
-// @version      0.1.1.23
+// @version      0.1.2.24
 // @match        https://boxcritters.com/play/
 // @match        https://boxcritters.com/play/?*
 // @match        https://boxcritters.com/play/#*
@@ -137,11 +137,11 @@
 	}
 
 
-	let settingsModel = new Popper();
-	settingsModel.element.querySelector(".modal-dialog").style["max-width"] = "1000px";
-	settingsModel.setContent("Antenna Settings" + Popper.closeButton, "", `Antenna created by <a href="https://boxcrittersmods.ga/authors/tumblegamer/" target="_blank">TumbleGamer</a>`);
+	let settingsModal = new Popper();
+	settingsModal.element.querySelector(".modal-dialog").style["max-width"] = "1000px";
+	settingsModal.setContent("Antenna Settings" + Popper.closeButton, "", `Antenna created by <a href="https://boxcrittersmods.ga/authors/tumblegamer/" target="_blank">TumbleGamer</a>`);
 	async function RegenerateSettings() {
-		let body = settingsModel.getBodyNode();
+		let body = settingsModal.getBodyNode();
 		body.innerHTML = "";
 		let gainSettings = createInputGroup("Gain");
 		body.appendChild(gainSettings);
@@ -184,7 +184,7 @@
 	}
 
 	function DisplaySettings() {
-		settingsModel.show();
+		settingsModal.show();
 		RegenerateSettings();
 	}
 
