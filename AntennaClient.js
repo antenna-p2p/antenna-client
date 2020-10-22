@@ -166,7 +166,7 @@ let AntennaClient;
 				id = this.bcid;
 				status = this.settings;
 			}
-			if (target.statusDot) target.statusDot.setColor(status.gain < 0 ? "red" : "green");
+			if (target.statusDot) target.statusDot.setColor(status.gain > 0 ? "green" : "red");
 		}
 
 		disconnectFromPeer(id) {
