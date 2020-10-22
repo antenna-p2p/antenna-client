@@ -2,7 +2,7 @@
 // @name         Antenna
 // @description  3D Web based peer to peer voice chat
 // @author       TumbleGamer
-// @version      0.1.2.24
+// @version      0.1.3.25
 // @match        https://boxcritters.com/play/
 // @match        https://boxcritters.com/play/?*
 // @match        https://boxcritters.com/play/#*
@@ -16,7 +16,7 @@
 // @require      https://github.com/SArpnt/cardboard/raw/master/script.user.js
 // @require      https://github.com/tumble1999/mod-utils/raw/master/mod-utils.js
 // @require      https://raw.githubusercontent.com/tumble1999/antenna/master/AntennaClient.js
-// @require      https://github.com/tumble1999/popper/raw/master/popper.js
+// @require      https://github.com/tumble1999/modial/raw/master/modial.js
 // ==/UserScript==
 // @require      file:///E:/dev/boxcritters/mods/antenna/AntennaClient.js
 
@@ -137,9 +137,9 @@
 	}
 
 
-	let settingsModal = new Popper();
+	let settingsModal = new Modial();
 	settingsModal.element.querySelector(".modal-dialog").style["max-width"] = "1000px";
-	settingsModal.setContent("Antenna Settings" + Popper.closeButton, "", `Antenna created by <a href="https://boxcrittersmods.ga/authors/tumblegamer/" target="_blank">TumbleGamer</a>`);
+	settingsModal.setContent("Antenna Settings" + Modial.closeButton, "", `Antenna created by <a href="https://boxcrittersmods.ga/authors/tumblegamer/" target="_blank">TumbleGamer</a>`);
 	async function RegenerateSettings() {
 		let body = settingsModal.getBodyNode();
 		body.innerHTML = "";
