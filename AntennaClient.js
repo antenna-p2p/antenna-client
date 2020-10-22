@@ -245,7 +245,7 @@ let AntennaClient;
 					});
 				if (bcid) {
 					this.peerPlayerIds[bcid] = id;
-					if (this.peerOutputs[id].statusDot = await this.createDot(bcid);
+					this.peerOutputs[id].statusDot = await this.createDot(bcid);
 					this.setPosition(this.getPlayer(bcid));
 				}
 			});
