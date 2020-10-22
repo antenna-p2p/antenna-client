@@ -99,7 +99,7 @@ let AntennaClient;
 				setColor: (color) => {
 					colorCommand.style = color;
 				},
-				get style() { return colorCommand.style}
+				get style() { return colorCommand.style; }
 			};
 		}
 
@@ -142,7 +142,7 @@ let AntennaClient;
 					panner.coneInnerAngle = 360;
 				}
 
-				Object.assign(this.peerOutputs[id],{
+				Object.assign(this.peerOutputs[id], {
 					stream,
 					source,
 					gain,
@@ -154,7 +154,7 @@ let AntennaClient;
 			return peerConnection;
 		}
 
-		updateStatus({ id, status }={}) {
+		updateStatus({ id, status } = {}) {
 			var target;
 			if (id) {
 				target = this.peerOutputs[id];
@@ -163,7 +163,7 @@ let AntennaClient;
 				id = this.bcid;
 				status = this.settings;
 			}
-			target.statusDot.setColor(status.gain < 0 ? "red" : "green");
+			if (target.statusDot) target.statusDot.setColor(status.gain < 0 ? "red" : "green");
 		}
 
 		disconnectFromPeer(id) {
@@ -195,8 +195,8 @@ let AntennaClient;
 			this.room = room;
 			this.setPosition();
 
-			this.createDot(this.bcid).then(statusDot=>{
-				this.statusDot = statusDot
+			this.createDot(this.bcid).then(statusDot => {
+				this.statusDot = statusDot;
 				this.updateStatus();
 			});
 			setTimeout(_ => {
@@ -266,8 +266,8 @@ let AntennaClient;
 				this.disconnectFromPeer(id);
 			});
 
-			this.on("status", ({id,status})=>{
-				this.updateStatus({id,status})
+			this.on("status", ({ id, status }) => {
+				this.updateStatus({ id, status });
 			});
 		}
 
