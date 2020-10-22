@@ -140,6 +140,9 @@ let AntennaClient;
 					gain.connect(panner);
 					panner.connect(audioContext.destination);
 					panner.coneInnerAngle = 360;
+					panner.refDistance = 50;
+					panner.distanceModel = "linear";
+					panner.panningModel = "HRTF";
 				}
 
 				Object.assign(this.peerOutputs[id], {
