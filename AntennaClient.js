@@ -226,9 +226,11 @@ let AntennaClient;
 					.then(_ => {
 						this.emit("request", { id, description: peerConnection.localDescription });
 					});
-				this.peerPlayerIds[bcid] = id;
-				this.peerOutputs[id].statusDot = await this.createDot(bcid);
-				this.setPosition(this.getPlayer(bcid));
+				if (bcid) {
+					this.peerPlayerIds[bcid] = id;
+					this.peerOutputs[id].statusDot = await this.createDot(bcid);
+					this.setPosition(this.getPlayer(bcid));
+				}
 			});
 			this.on("request", async ({ id, bcid, description }) => {
 				this.log(`Incoming connection request from ${id} (${bcid || "omnipresent"}) `, description);
@@ -241,9 +243,11 @@ let AntennaClient;
 						this.emit("answer", { id, description: peerConnection.localDescription });
 						this.emit("status", this.settings);
 					});
-				this.peerPlayerIds[bcid] = id;
-				this.peerOutputs[id].statusDot = await this.createDot(bcid);
-				this.setPosition(this.getPlayer(bcid));
+				if (bcid) {
+					this.peerPlayerIds[bcid] = id;
+					if (this.peerOutputs[id].statusDot = await this.createDot(bcid);
+					this.setPosition(this.getPlayer(bcid));
+				}
 			});
 
 			// From New Peer to existing Peers
