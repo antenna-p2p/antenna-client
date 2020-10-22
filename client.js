@@ -5,7 +5,7 @@ var startBtn = document.querySelector("button");
 
 startBtn.addEventListener("click", () => {
 	startBtn.remove();
-	client.setupMicrophone();
+	client.setMicrophone();
 });
 var roomForm = document.getElementById("room-form");
 roomForm.querySelector("button").addEventListener("click", () => {
