@@ -3,6 +3,7 @@
 // @description  3D Web based peer to peer voice chat
 // @author       TumbleGamer
 // @namespace    https://boxcrittersmods.ga/authors/tumblegamer/
+// @supportURL   http://discord.gg/D2ZpRUW
 // @version      0.3.0.29
 // @match        https://boxcritters.com/play/
 // @match        https://boxcritters.com/play/?*
