@@ -158,40 +158,20 @@
 		gainSlider.classList.add("col-sm");
 		gainSettings.appendChild(gainSlider);
 
-
-		let deviceSettings = createInputGroup("Devices");
-		settingsPage.appendChild(deviceSettings);
-
-		let inputDevices = await Antenna.client.getDevices("input");
-		let inputDeviceSelector = createDropdown("select-input",
+		let devGroup = settingsPage.createInputRow("Devices");
+		devGroup.createDropdown("Input Device",
 			inputDevices.map(device => ({ value: device.deviceId, text: device.label })),
-			option => option.value == Antenna.client.settings.inputId,
-			(input, selected) => {
-				let option = selected[0];
-				Antenna.client.setMicrophone(option.value);
-			}
-		);
-		inputDeviceSelector.classList.add("col-sm");
-		deviceSettings.appendChild(inputDeviceSelector);
-
-		let outputDevices = await Antenna.client.getDevices("output");
-		let outputDeviceSelector = createDropdown("select-output",
+			value => value == Antenna.client.settings.inputId,
+			value => {
+				Antenna.client.setMicrophone(value);
+			});
+		devGroup.createDropdown("Out Device",
 			outputDevices.map(device => ({ value: device.deviceId, text: device.label })),
-			option => option.value == Antenna.client.settings.inputId,
-			(input, selected) => {
-				let option = selected[0];
-				//Antenna.client.setMicrophone(option.value);
-			}
-		);
-
-		outputDeviceSelector.classList.add("col-sm");
-		deviceSettings.appendChild(outputDeviceSelector);
+			value => value == Antenna.client.settings.inputId,
+			value => {
+				/// TODO: Changing of output devices
+			});
 	}
-
-	/*function DisplaySettings() {
-		settingsModal.show();
-		RegenerateSettings();
-	}*/
 
 	TumbleMod.onDocumentLoaded()
 		.then(() => {
