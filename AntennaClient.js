@@ -120,37 +120,52 @@ let AntennaClient;
 			peerConnection.ontrack = event => {
 				let stream = new MediaStream;
 				event.streams[0].getAudioTracks().forEach(track => stream.addTrack(track));
-				let audio = new Audio;
-				audio.muted = true;
-				audio.srcObject = stream;
-				audio.play();
+				// for some reason you have to stream peer connections to an audio element before you can do anything else to it
+				{
+					let audio = new Audio;
+					audio.muted = true;
+					audio.srcObject = stream;
+					audio.play();
+				}
+
 				let audioContext = new AudioContext();
 				setupNodeRoation(audioContext.listener);
 				let source = audioContext.createMediaStreamSource(stream);
 				let gain = audioContext.createGain();
 				let panner = audioContext.createPanner();
+				let destination = audioContext.createMediaStreamDestination();
+				let audio = new Audio;
+
 				source.connect(gain);
 				gain.gain.value = this.settings.gain;
 
 				if (omnipresent || this.omnipresent) {
-					gain.connect(audioContext.destination);
+					gain.connect(destination);
 				} else {
 					//for Positioning
 					setupNodeRoation(panner);
 					gain.connect(panner);
-					panner.connect(audioContext.destination);
+					panner.connect(destination);
 					panner.coneInnerAngle = 360;
 					panner.refDistance = 50;
-					panner.distanceModel = "linear";
+					panner.rolloffFactor = 10;
+					panner.distanceModel = "exponential";
 					panner.panningModel = "HRTF";
 				}
+
+				audio.srcObject = destination.stream;
+				//audio.src = URL.createObjectURL(destination.stream)
+				audio.play();
+				audio.setSinkId(this.settings.outputId);
 
 				Object.assign(this.peerOutputs[id], {
 					stream,
 					source,
 					gain,
 					panner,
-					audioContext
+					audioContext,
+					destination,
+					audio,
 				});
 			};
 			this.peerOutputs[id] = {};
@@ -196,13 +211,13 @@ let AntennaClient;
 			if (!room.roomId) room = { roomId: room };
 			this.emit("joinRoom", room.roomId);
 			this.room = room;
-			this.setPosition();
 
 			this.createDot(this.bcid).then(statusDot => {
 				this.statusDot = statusDot;
 				this.updateStatus();
 			});
 			setTimeout(_ => {
+				this.setPosition();
 				this.roomLoaded = true;
 			}, 0);
 		}
@@ -317,11 +332,19 @@ let AntennaClient;
 
 		setGain(value) {
 			this.settings.gain = value;
-			let gainNodes = Object.values(this.peerOutputs).map(peer => peer.gain);
-			gainNodes.forEach(gainNode => gainNode.gain.value = value);
+			Object.values(this.peerOutputs).forEach(peer => peer.gain.gain.value = value);
 			this.updateStatus();
 			this.emit("status", this.settings);
 		}
+
+		setSpeaker(deviceId = "communications") {
+			this.settings.outputId = deviceId;
+			Object.values(this.peerOutputs).forEach(peer => {
+				console.log(peer.audio, deviceId);
+				peer.audio.setSinkId(deviceId);
+			});
+		}
+
 
 		setMicrophone(deviceId = "communications") {
 			this.settings.inputId = deviceId;
