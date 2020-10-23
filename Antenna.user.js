@@ -2,7 +2,7 @@
 // @name         Antenna
 // @description  3D Web based peer to peer voice chat
 // @author       TumbleGamer
-// @version      0.1.4.25
+// @version      0.2.0.26
 // @match        https://boxcritters.com/play/
 // @match        https://boxcritters.com/play/?*
 // @match        https://boxcritters.com/play/#*
@@ -17,6 +17,7 @@
 // @require      https://github.com/tumble1999/mod-utils/raw/master/mod-utils.js
 // @require      https://raw.githubusercontent.com/tumble1999/antenna/master/AntennaClient.js
 // @require      https://github.com/tumble1999/modial/raw/master/modial.js
+// @require      https://github.com/tumble1999/critterguration/raw/master/critterguration.user.js
 // ==/UserScript==
 // @require      file:///E:/dev/boxcritters/mods/antenna/AntennaClient.js
 
@@ -41,35 +42,38 @@
 	});
 	Antenna.client.log = Antenna.log.bind(Antenna);
 
-	cardboard.on("runScripts", function () {
-		if (io) Antenna.log("Socket.io's 'io' variable has been found");
-		Antenna.client.setupSockets();
+	if (typeof cardboard !== undefined) {
 
-	});
-	cardboard.on("worldCreated", world => {
-		Antenna.log("World created");
-		Antenna.world = world;
-	});
-
-	cardboard.on("worldSocketCreated", (world, socket) => {
-		socket.on("joinRoom", r => {
-			Antenna.log("Joined Room: " + r.roomId);
-			Antenna.client.joinRoom(r);
-			//setTimeout((Antenna.testDots),0)
+		cardboard.on("runScripts", function () {
+			if (io) Antenna.log("Socket.io's 'io' variable has been found");
+			Antenna.client.setupSockets();
 
 		});
-		socket.on("X", info => {
-			//Antenna.log("Change Position:", info);
-			Antenna.client.setPosition(info);
+		cardboard.on("worldCreated", world => {
+			Antenna.log("World created");
+			Antenna.world = world;
 		});
-	});
 
-	cardboard.on("login", () => {
-		if (!Antenna.world) return;
-		let id = Antenna.world.player.playerId;
-		Antenna.log("Logged in as " + id);
-		Antenna.client.login(Antenna.world, id);
-	});
+		cardboard.on("worldSocketCreated", (world, socket) => {
+			socket.on("joinRoom", r => {
+				Antenna.log("Joined Room: " + r.roomId);
+				Antenna.client.joinRoom(r);
+				//setTimeout((Antenna.testDots),0)
+
+			});
+			socket.on("X", info => {
+				//Antenna.log("Change Position:", info);
+				Antenna.client.setPosition(info);
+			});
+		});
+
+		cardboard.on("login", () => {
+			if (!Antenna.world) return;
+			let id = Antenna.world.player.playerId;
+			Antenna.log("Logged in as " + id);
+			Antenna.client.login(Antenna.world, id);
+		});
+	}
 	window.addEventListener("unload", _ => Antenna.client.close());
 	window.addEventListener("beforeunload", _ => Antenna.client.close());
 
@@ -136,26 +140,26 @@
 		return group;
 	}
 
+	let settingsPage = Critterguration.registerSettingsMenu(Antenna, RegenerateSettings);
 
-	let settingsModal = new Modial();
+	/*let settingsModal = new Modial();
 	settingsModal.element.querySelector(".modal-dialog").style["max-width"] = "1000px";
-	settingsModal.setContent("Antenna Settings" + Modial.closeButton, "", `Antenna created by <a href="https://boxcrittersmods.ga/authors/tumblegamer/" target="_blank">TumbleGamer</a>`);
+	settingsModal.setContent("Antenna Settings" + Modial.closeButton, "", `Antenna created by <a href="https://boxcrittersmods.ga/authors/tumblegamer/" target="_blank">TumbleGamer</a>`);*/
 	async function RegenerateSettings() {
-		let body = settingsModal.getBodyNode();
-		body.innerHTML = "";
+		settingsPage.innerHTML = "";
 		let gainSettings = createInputGroup("Gain");
-		body.appendChild(gainSettings);
-		let gainSlider = createSlider("gain", 200 / 3, input => {
+		settingsPage.appendChild(gainSettings);
+		let gainSlider = createSlider("gain", Antenna.client.gain, input => {
 			console.log("gain changed " + input.value);
-			let value = -3 + (input.value / 100 * 6);
-			Antenna.client.setGain(value);
+			//let value = -3 + (input.value / 100 * 6);
+			Antenna.client.setGain(input.value);
 		});
 		gainSlider.classList.add("col-sm");
 		gainSettings.appendChild(gainSlider);
 
 
 		let deviceSettings = createInputGroup("Devices");
-		body.appendChild(deviceSettings);
+		settingsPage.appendChild(deviceSettings);
 
 		let inputDevices = await Antenna.client.getDevices("input");
 		let inputDeviceSelector = createDropdown("select-input",
@@ -183,10 +187,10 @@
 		deviceSettings.appendChild(outputDeviceSelector);
 	}
 
-	function DisplaySettings() {
+	/*function DisplaySettings() {
 		settingsModal.show();
 		RegenerateSettings();
-	}
+	}*/
 
 	TumbleMod.onDocumentLoaded()
 		.then(() => {
@@ -194,14 +198,14 @@
 			Antenna.client.setMicrophone();
 		});
 
-	if (typeof BCMacros !== "undefined") {
+	/*if (typeof BCMacros !== "undefined") {
 		let macroPack = BCMacros.createMacroPack("Antenna");
 		Antenna.settingsMacro = macroPack.createMacro({
 			name: "Antenna",
 			action: () => { DisplaySettings(); },
 			button: { text: "Antenna" }
 		});
-	}
+	}*/
 
 
 
