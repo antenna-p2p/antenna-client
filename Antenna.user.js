@@ -2,7 +2,7 @@
 // @name         Antenna
 // @description  3D Web based peer to peer voice chat
 // @author       TumbleGamer
-// @version      0.2.0.26
+// @version      0.2.1.27
 // @match        https://boxcritters.com/play/
 // @match        https://boxcritters.com/play/?*
 // @match        https://boxcritters.com/play/#*
@@ -84,12 +84,12 @@
 		return label;
 	}
 
-	function createSlider(id, value, oninput) {
+	function createSlider(id, value = "", oninput) {
 		let input = document.createElement("input");
 		input.type = "range";
 		input.id = id;
 		input.class = "custom-range";
-		input.value = value;
+		input.value = value.toString();
 		input.oninput = () => oninput(input);
 		return input;
 	}
@@ -147,9 +147,9 @@
 	settingsModal.setContent("Antenna Settings" + Modial.closeButton, "", `Antenna created by <a href="https://boxcrittersmods.ga/authors/tumblegamer/" target="_blank">TumbleGamer</a>`);*/
 	async function RegenerateSettings() {
 		settingsPage.innerHTML = "";
-		let gainSettings = createInputGroup("Gain");
+		let gainSettings = createInputGroup("Volume");
 		settingsPage.appendChild(gainSettings);
-		let gainSlider = createSlider("gain", Antenna.client.gain, input => {
+		let gainSlider = createSlider("gain", Antenna.client.settings.gain, input => {
 			console.log("gain changed " + input.value);
 			//let value = -3 + (input.value / 100 * 6);
 			Antenna.client.setGain(input.value);
