@@ -2,7 +2,7 @@
 // @name         Antenna
 // @description  3D Web based peer to peer voice chat
 // @author       TumbleGamer
-// @version      0.2.2.28
+// @version      0.3.0.29
 // @match        https://boxcritters.com/play/
 // @match        https://boxcritters.com/play/?*
 // @match        https://boxcritters.com/play/#*
@@ -158,6 +158,8 @@
 		gainSlider.classList.add("col-sm");
 		gainSettings.appendChild(gainSlider);
 
+		let inputDevices = await Antenna.client.getDevices("input");
+		let outputDevices = await Antenna.client.getDevices("output");
 		let devGroup = settingsPage.createInputRow("Devices");
 		devGroup.createDropdown("Input Device",
 			inputDevices.map(device => ({ value: device.deviceId, text: device.label })),
