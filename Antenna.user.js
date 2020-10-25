@@ -4,7 +4,7 @@
 // @author       TumbleGamer
 // @namespace    https://boxcrittersmods.ga/authors/tumblegamer/
 // @supportURL   http://discord.gg/D2ZpRUW
-// @version      0.4.1.31
+// @version      0.4.2.32
 // @match        https://boxcritters.com/play/
 // @match        https://boxcritters.com/play/?*
 // @match        https://boxcritters.com/play/#*
@@ -20,7 +20,7 @@
 // @require      https://github.com/SArpnt/ctrl-panel/raw/master/script.user.js
 // @require      https://github.com/tumble1999/modial/raw/master/modial.js
 // @require      https://github.com/tumble1999/critterguration/raw/master/critterguration.user.js
-// @require      https://raw.githubusercontent.com/tumble1999/antenna/master/AntennaClient.js
+// @require      https://github.com/tumble1999/antenna/raw/master/AntennaClient.js
 // ==/UserScript==
 // @require      file:///E:/dev/boxcritters/mods/antenna/AntennaClient.js
 
