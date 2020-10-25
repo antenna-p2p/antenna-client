@@ -4,7 +4,7 @@
 // @author       TumbleGamer
 // @namespace    https://boxcrittersmods.ga/authors/tumblegamer/
 // @supportURL   http://discord.gg/D2ZpRUW
-// @version      0.4.0.30
+// @version      0.4.1.31
 // @match        https://boxcritters.com/play/
 // @match        https://boxcritters.com/play/?*
 // @match        https://boxcritters.com/play/#*
@@ -20,9 +20,9 @@
 // @require      https://github.com/SArpnt/ctrl-panel/raw/master/script.user.js
 // @require      https://github.com/tumble1999/modial/raw/master/modial.js
 // @require      https://github.com/tumble1999/critterguration/raw/master/critterguration.user.js
-// @require      file:///E:/dev/boxcritters/mods/antenna/AntennaClient.js
-// ==/UserScript==
 // @require      https://raw.githubusercontent.com/tumble1999/antenna/master/AntennaClient.js
+// ==/UserScript==
+// @require      file:///E:/dev/boxcritters/mods/antenna/AntennaClient.js
 
 (function () {
 	"use strict";
@@ -97,21 +97,29 @@
 		return input;
 	}
 
-	function createDropdown(id, options, selected, onchange) {
+	function createProgress(value, max, color = "primary") {
+		let progress = document.createElement("div");
+		progress.classList.add("progress", "w-100");
+		let progressBar = document.createElement("div");
+		progressBar.setAttribute("role", "progressbar");
+		progressBar.setAttribute("aria-valuemin", 0);
+		progressBar.setAttribute("aria-valuemax", max);
+		progress.appendChild(progressBar);
 
-		let input = document.createElement("select");
-		input.id = id;
-		input.classList.add("custom-select");
-		for (let option of options) {
-			let optionElement = document.createElement("option");
-			optionElement.value = option.value;
-			optionElement.innerText = option.text;
-			optionElement.style.whiteSpace = "none";
-			if (selected(option)) optionElement.selected = true;
-			input.appendChild(optionElement);
-		}
-		input.onchange = () => onchange(input, input.selectedOptions);
-		return input;
+		progress.setColor = c => {
+			color = c;
+			progressBar.classList.value = `progress-bar "bg-${color}`;
+		};
+
+		progress.setValue = v => {
+			value = v;
+			progressBar.setAttribute("aria-valuenow", value);
+			progressBar.style.width = Math.round(value / max * 100) + "%";
+		};
+		progress.setValue(value);
+		progress.setColor(color);
+
+		return progress;
 	}
 
 	/**
@@ -148,6 +156,8 @@
 	/*let settingsModal = new Modial();
 	settingsModal.element.querySelector(".modal-dialog").style["max-width"] = "1000px";
 	settingsModal.setContent("Antenna Settings" + Modial.closeButton, "", `Antenna created by <a href="https://boxcrittersmods.ga/authors/tumblegamer/" target="_blank">TumbleGamer</a>`);*/
+	let micVisual;
+	let speakerVisual;
 	async function RegenerateSettings() {
 		settingsPage.innerHTML = "";
 		let gainSettings = createInputGroup("Volume");
@@ -173,26 +183,32 @@
 			outputDevices.map(device => ({ value: device.deviceId, text: device.label })),
 			value => value == Antenna.client.settings.outputId,
 			value => {
-				/// TODO: Changing of output devices
 				Antenna.client.setSpeaker(value);
 			});
+		let progGroup = settingsPage.createInputRow("Visual");
+		micVisual = createProgress(Antenna.client.input.db, 100);
+		speakerVisual = createProgress(0, 10);
+		progGroup.appendChild(micVisual);
+		progGroup.appendChild(speakerVisual);
+
 	}
+
+	function update() {
+		if (micVisual) {
+			micVisual.setValue(Antenna.client.input.db);
+		}
+		if (speakerVisual) {
+
+		}
+		requestAnimationFrame(update);
+	}
+	update();
 
 	TumbleMod.onDocumentLoaded()
 		.then(() => {
 			Antenna.log("Setting up Microphone");
 			Antenna.client.setMicrophone();
 		});
-
-	/*if (typeof BCMacros !== "undefined") {
-		let macroPack = BCMacros.createMacroPack("Antenna");
-		Antenna.settingsMacro = macroPack.createMacro({
-			name: "Antenna",
-			action: () => { DisplaySettings(); },
-			button: { text: "Antenna" }
-		});
-	}*/
-
 
 
 	window.Antenna = Antenna;

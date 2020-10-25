@@ -35,6 +35,34 @@ let AntennaClient;
 		}
 	}
 
+	function moniterDB(audioNode, audioContext = new AudioContext, cb) {
+		if (audioNode.constructor.name == "MediaStream") audioNode = audioContext.createMediaStreamSource(audioNode);
+
+		let anylyser = audioContext.createAnalyser(),
+			javascriptNode = audioContext.createScriptProcessor(2048, 1, 1);
+
+		anylyser.smoothingTimeConstant - 0.8;
+		anylyser.fftSize = 1024;
+
+		audioNode.connect(anylyser);
+		anylyser.connect(javascriptNode);
+		if (typeof out != "undefined") javascriptNode.connect(out);
+
+		javascriptNode.addEventListener("audioprocess", () => {
+			let array = new Uint8Array(anylyser.frequencyBinCount);
+			anylyser.getByteFrequencyData(array);
+			array.reduce((s, v) => s + v, 0);
+			let values = 0;
+
+			for (let value of array) {
+				values += value;
+			}
+			cb(values / array.length);
+
+		});
+		return javascriptNode;
+	}
+
 	AntennaClient = class {
 		constructor(options) {
 			let { ip, config, log } = Object.assign(defaultOptions, options);
@@ -53,6 +81,8 @@ let AntennaClient;
 				gain: 1,
 				inputId: "communications",
 				outputId: "communications",
+				onMicDB: _ => 0,
+				onSpeakerDB: _ => 0
 			};
 			this.input = {
 				audio: new Audio
@@ -139,12 +169,16 @@ let AntennaClient;
 				source.connect(gain);
 				gain.gain.value = this.settings.gain;
 
+				let dbParams = [audioContext, db => this.peerOutputs[id].db = db];
+				let dbMeasurer;
 				if (omnipresent || this.omnipresent) {
-					gain.connect(destination);
+					dbMeasurer = moniterDB(gain, ...dbParams);
+					//gain.connect(destination);
 				} else {
 					//for Positioning
 					setupNodeRoation(panner);
-					gain.connect(panner);
+					dbMeasurer = moniterDB(gain, ...dbParams);
+					//gain.connect(panner);
 					panner.connect(destination);
 					panner.coneInnerAngle = 360;
 					panner.refDistance = 50;
@@ -153,6 +187,7 @@ let AntennaClient;
 					panner.panningModel = "HRTF";
 				}
 
+				dbMeasurer.connect(destination);
 				audio.srcObject = destination.stream;
 				//audio.src = URL.createObjectURL(destination.stream)
 				audio.play();
@@ -173,7 +208,7 @@ let AntennaClient;
 		}
 
 		updateStatus({ id, status } = {}) {
-			var target;
+			let target;
 			if (id) {
 				target = this.peerOutputs[id];
 			} else {
@@ -337,6 +372,14 @@ let AntennaClient;
 			this.emit("status", this.settings);
 		}
 
+		onMicDB(cb) {
+			this.settings.onMicDB = cb;
+		}
+
+		onSpeakerDB(cb) {
+			this.settings.onSpeakerDB = _ => cb(this.peerOutputs.reduce((s, p) => s + p.db, 0) / this.peerOutputs.length);
+		}
+
 		setSpeaker(deviceId = "communications") {
 			this.settings.outputId = deviceId;
 			Object.values(this.peerOutputs).forEach(peer => {
@@ -358,7 +401,15 @@ let AntennaClient;
 					.getUserMedia(constraints)
 					.then(stream => {
 						this.log("Connected to Microphone", stream);
-						this.devices.input = stream;
+						var audioContext = new AudioContext;
+						var micOutput = moniterDB(stream, audioContext, db => {
+							this.input.db = db;
+							this.settings.onMicDB(db);
+						});
+						var destination = audioContext.createMediaStreamDestination();
+						micOutput.connect(destination);
+						this.devices.input = destination.stream;
+
 						this.input.audio.srcObject = stream;
 						resolve();
 					})
@@ -368,7 +419,7 @@ let AntennaClient;
 		}
 
 		async getDevices(kind = "input") {
-			var devices = await navigator.mediaDevices.enumerateDevices();
+			let devices = await navigator.mediaDevices.enumerateDevices();
 			return devices.filter(device => device.kind == "audio" + kind);
 		}
 	};
