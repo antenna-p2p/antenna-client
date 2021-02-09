@@ -5,7 +5,7 @@ let AntennaClient;
 	Window.AudioContext = window.AudioContext || window.webkitAudioContext;
 	const DEFAULT_OPTIONS = {
 		//ip: "ws://localhost:3001",
-		ip: "tumble-room-vc.herokuapp.com",
+		ip: "antennatest.herokuapp.com",
 		config: {
 			iceServers: [ // what is iceservers
 				{
@@ -295,7 +295,7 @@ let AntennaClient;
 						this.input.audio.srcObject = stream;
 						resolve();
 					})
-					.catch(error => this.log(error));
+					.catch(e => console.error(e));
 			});
 		}
 
