@@ -109,7 +109,6 @@ let AntennaClient;
 				let audioContext = new AudioContext,
 					source = audioContext.createMediaStreamSource(stream),
 					gain = audioContext.createGain(),
-					panner = audioContext.createPanner(),
 					destination = audioContext.createMediaStreamDestination(),
 					audio = new Audio;
 
@@ -133,7 +132,6 @@ let AntennaClient;
 					stream,
 					source,
 					gain,
-					panner,
 					audioContext,
 					destination,
 					audio,
