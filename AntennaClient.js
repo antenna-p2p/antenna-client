@@ -2,7 +2,7 @@
 
 let AntennaClient;
 (function () {
-	Window.AudioContext = window.AudioContext || window.webkitAudioContext;
+	Window.AudioContext = window.AudioContext ?? window.webkitAudioContext;
 	const DEFAULT_OPTIONS = {
 		//ip: "ws://localhost:3001",
 		ip: "antennatest.herokuapp.com",
@@ -17,7 +17,13 @@ let AntennaClient;
 		static: false,
 	};
 
-	function moniterDB(audioNode, audioContext = new AudioContext, cb) {
+	/**
+	 * monitors volume of audio node
+	 * @param {AudioNode} audioNode 
+	 * @param {AudioContext} [audioContext]
+	 * @param {function (number)} callback 
+	 */
+	function moniterDB(audioNode, audioContext = new AudioContext, callback) {
 		if (audioNode.constructor.name == "MediaStream")
 			audioNode = audioContext.createMediaStreamSource(audioNode);
 
@@ -32,16 +38,10 @@ let AntennaClient;
 		if (out != undefined)
 			jsNode.connect(out);
 
-		jsNode.addEventListener("audioprocess", () => { // TODO: none of these variable names mean anything
-			let array = new Uint8Array(analyser.frequencyBinCount);
-			analyser.getByteFrequencyData(array);
-			array.reduce((s, v) => s + v, 0);
-
-			let values = 0;
-			for (let value of array)
-				values += value;
-
-			cb(values / array.length);
+		jsNode.addEventListener("audioprocess", () => {
+			let freq = new Uint8Array(analyser.frequencyBinCount);
+			analyser.getByteFrequencyData(freq);
+			callback(freq.reduce((a, b) => a + b) / freq.length);
 		});
 		return jsNode;
 	}
@@ -60,17 +60,17 @@ let AntennaClient;
 
 			this.devices = {
 				input: null,
-				output: null
+				output: null,
 			};
 			this.settings = {
 				gain: 1,
 				inputId: "communications",
 				outputId: "communications",
 				onMicDB: _ => 0,
-				onSpeakerDB: _ => 0
+				onSpeakerDB: _ => 0,
 			};
 			this.input = {
-				audio: new Audio
+				audio: new Audio,
 			};
 		}
 
@@ -189,9 +189,9 @@ let AntennaClient;
 		setupSockets() {
 			this.socket = io.connect(this.ip);
 			this.on("connect", () => {
-				this.log("Connected to " + this.ip);
+				this.log(`Connected to ${this.ip}`);
 				if (this.room) {
-					this.log("Rejoining " + this.room.roomId);
+					this.log(`Rejoining ${this.room.roomId}`);
 					this.joinRoom();
 				}
 			});
