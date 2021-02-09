@@ -1,5 +1,7 @@
-var webServer = require("tn-webserver");
-var socketIo = require("socket.io");
+"use strict";
+
+const webServer = require("tn-webserver"),
+	socketIo = require("socket.io");
 
 function createBinder(instance) {
 	return (function (a, ...p) {
@@ -8,8 +10,8 @@ function createBinder(instance) {
 }
 
 
-var server = webServer(_ => { }, {}, 3001);
-var io = socketIo(server);
+let server = webServer(_ => { }, {}, 3001);
+let io = socketIo(server);
 io.on("connect", socket => {
 	new Client(socket);
 });
@@ -34,22 +36,19 @@ class Client {
 		return this.socket.id;
 	}
 	bindSocket(name) {
-		var t = this;
+		let t = this;
 		this.socket.on(name, (...p) => {
 			console.log(t.id, name, ...p);
 			this.bind(name)(...p);
 		});
 	}
-	login(bcid) {
-		this.bcid = bcid;
-	}
 	join(room) {
 		if (this.room) {
-			console.log(this.id + " is leaving room " + this.room);
+			console.log(`${this.id} is leaving room ${this.room}`);
 			this.socket.leave(this.room);
 		}
 		this.room = room || "test";
-		console.log(this.id + " is joining room " + this.room);
+		console.log(`${this.id} is joining room ${this.room}`);
 		this.socket.join(this.room);
 	}
 	emit(...a) {
@@ -69,17 +68,18 @@ class Client {
 		this.roomEmit("peerDisconnect", this.id);
 	}
 	joinRoom(room) {
-		if (this.room) this.roomEmit("peerDisconnect", this.id);
+		if (this.room)
+			this.roomEmit("peerDisconnect", this.id);
 		this.join(room);
-		this.roomEmit("peerConnect", {id:this.id,bcid:this.bcid});
+		this.roomEmit("peerConnect", { id: this.id });
 	}
 
 	status(status) {
-		this.roomEmit("status",{id:this.id,status})
+		this.roomEmit("status", { id: this.id, status });
 	}
 
 	request({ id, description }) {
-		this.peerEmit(id, "request", { id: this.id, bcid: this.bcid, description });
+		this.peerEmit(id, "request", { id: this.id, description });
 	}
 
 	answer({ id, description }) {

@@ -1,18 +1,24 @@
-var client = new AntennaClient({});
+"use strict";
+
+const
+	START_BTN = document.querySelector("button"),
+	ROOM_FORM = document.getElementById("room-form");
+
+let client = new AntennaClient;
 
 client.setupSockets();
-var startBtn = document.querySelector("button");
 
-startBtn.addEventListener("click", () => {
-	startBtn.remove();
+START_BTN.addEventListener("click", () => {
+	START_BTN.remove();
 	client.setMicrophone();
 });
-var roomForm = document.getElementById("room-form");
-roomForm.querySelector("button").addEventListener("click", () => {
-	var roomId = roomForm.querySelector("input#roomId").value;
+
+ROOM_FORM.querySelector("button").addEventListener("click", () => {
+	let roomId = ROOM_FORM.querySelector("input#roomId").value;
 	console.log("Joining room", roomId);
 	client.joinRoom(roomId);
 });
+
 window.onunload = window.onbeforeunload = () => {
 	client.close();
 };
