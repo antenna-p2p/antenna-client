@@ -124,7 +124,8 @@ let AntennaClient;
 				audio.srcObject = destination.stream;
 				//audio.src = URL.createObjectURL(destination.stream)
 				audio.play();
-				audio.setSinkId(this.settings.outputId);
+				if (audio.setSinkId) // TODO: better support check
+					audio.setSinkId(this.settings.outputId);
 
 				Object.assign(this.peerOutputs[id], {
 					stream,
@@ -262,7 +263,8 @@ let AntennaClient;
 			this.settings.outputId = deviceId;
 			Object.values(this.peerOutputs).forEach(peer => {
 				console.log(peer.audio, deviceId);
-				peer.audio.setSinkId(deviceId);
+				if (audio.setSinkId) // TODO: better support check
+					peer.audio.setSinkId(deviceId);
 			});
 		}
 
