@@ -35,8 +35,6 @@ let AntennaClient;
 
 		audioNode.connect(analyser);
 		analyser.connect(jsNode);
-		if (out != undefined)
-			jsNode.connect(out);
 
 		jsNode.addEventListener("audioprocess", () => {
 			let freq = new Uint8Array(analyser.frequencyBinCount);
