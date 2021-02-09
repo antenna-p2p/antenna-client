@@ -109,17 +109,16 @@ let AntennaClient;
 				let audioContext = new AudioContext,
 					source = audioContext.createMediaStreamSource(stream),
 					gain = audioContext.createGain(),
+					dbMeasurer = moniterDB(gain, audioContext, db => this.peerOutputs[id].db = db),
 					destination = audioContext.createMediaStreamDestination(),
 					audio = new Audio;
 
-				source.connect(gain);
 				gain.gain.value = this.settings.gain;
 
-				let dbParams = [audioContext, db => this.peerOutputs[id].db = db],
-					dbMeasurer = moniterDB(gain, ...dbParams);
-				//gain.connect(destination);
-
+				source.connect(gain);
+				//gain aready connected to dbMeasurer
 				dbMeasurer.connect(destination);
+
 				audio.srcObject = destination.stream;
 				//audio.src = URL.createObjectURL(destination.stream)
 				audio.play();
@@ -163,9 +162,8 @@ let AntennaClient;
 		}
 
 		disconnectFromAllPeers() {
-			for (let id in this.peerConnections) {
+			for (let id in this.peerConnections)
 				this.disconnectFromPeer(id);
-			}
 		}
 
 		joinRoom(room = this.room.roomId) {
@@ -232,9 +230,10 @@ let AntennaClient;
 			});
 
 			this.on("peerDisconnect", id => {
-				if (!this.peerConnections[id]) return;
-				this.log(`Peer ${id} has left the room`);
-				this.disconnectFromPeer(id);
+				if (this.peerConnections[id]) {
+					this.log(`Peer ${id} has left the room`);
+					this.disconnectFromPeer(id);
+				}
 			});
 
 			this.on("status", ({ id, status }) => {
@@ -251,12 +250,14 @@ let AntennaClient;
 			this.emit("status", this.settings);
 		}
 
-		onMicDB(cb) {
-			this.settings.onMicDB = cb;
+		// these two on functions don't seem great
+		onMicDB(callback) {
+			this.settings.onMicDB = callback;
 		}
 
-		onSpeakerDB(cb) {
-			this.settings.onSpeakerDB = _ => cb(this.peerOutputs.reduce((s, p) => s + p.db, 0) / this.peerOutputs.length);
+		onSpeakerDB(callback) {
+			this.settings.onSpeakerDB = _ =>
+				callback(this.peerOutputs.reduce((s, p) => s + p.db, 0) / this.peerOutputs.length);
 		}
 
 		setSpeaker(deviceId) {
@@ -264,7 +265,7 @@ let AntennaClient;
 			Object.values(this.peerOutputs).forEach(peer => {
 				console.log(peer.audio, deviceId);
 				if (!audio.setSinkId) // TODO: better support check
-					throw "setSinkId not supported on this browser"
+					throw "setSinkId not supported on this browser";
 				peer.audio.setSinkId(deviceId);
 			});
 		}
