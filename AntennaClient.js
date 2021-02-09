@@ -124,8 +124,10 @@ let AntennaClient;
 				audio.srcObject = destination.stream;
 				//audio.src = URL.createObjectURL(destination.stream)
 				audio.play();
-				if (audio.setSinkId) // TODO: better support check
+				/* // the communications device only exists on windows
+				if (audio.setSinkId && this.settings.outputId) // TODO: better support check
 					audio.setSinkId(this.settings.outputId);
+				*/
 
 				Object.assign(this.peerOutputs[id], {
 					stream,
@@ -259,17 +261,18 @@ let AntennaClient;
 			this.settings.onSpeakerDB = _ => cb(this.peerOutputs.reduce((s, p) => s + p.db, 0) / this.peerOutputs.length);
 		}
 
-		setSpeaker(deviceId = "communications") {
+		setSpeaker(deviceId) {
 			this.settings.outputId = deviceId;
 			Object.values(this.peerOutputs).forEach(peer => {
 				console.log(peer.audio, deviceId);
-				if (audio.setSinkId) // TODO: better support check
-					peer.audio.setSinkId(deviceId);
+				if (!audio.setSinkId) // TODO: better support check
+					throw "setSinkId not supported on this browser"
+				peer.audio.setSinkId(deviceId);
 			});
 		}
 
 
-		setMicrophone(deviceId = "communications") {
+		setMicrophone(deviceId) {
 			this.settings.inputId = deviceId;
 			// Media Constraints
 			const CONSTRAINTS = {
