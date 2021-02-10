@@ -1,20 +1,21 @@
 "use strict";
 
 const
-	START_BTN = document.querySelector("button"),
-	ROOM_FORM = document.getElementById("room-form");
+	ROOM_FORM = document.getElementById("vc-form"),
+	GETMIC_BTN = document.getElementById("vc-getMic"),
+	ROOMID_INPUT = document.getElementById("vc-roomId"),
+	JOINROOM_BTN = document.getElementById("vc-joinRoom");
 
 let client = new AntennaClient;
 
 client.setupSockets();
 
-START_BTN.addEventListener("click", () => {
-	START_BTN.remove();
+GETMIC_BTN.addEventListener("click", () => {
+	GETMIC_BTN.disabled = true;
 	client.setMicrophone();
 });
-
-ROOM_FORM.querySelector("button").addEventListener("click", () => {
-	let roomId = ROOM_FORM.querySelector("input#roomId").value;
+JOINROOM_BTN.addEventListener("click", () => {
+	let roomId = ROOMID_INPUT.value;
 	console.log("Joining room", roomId);
 	client.joinRoom(roomId);
 });
