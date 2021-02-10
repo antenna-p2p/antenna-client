@@ -281,7 +281,7 @@ let AntennaClient;
 						this.log("Connected to Microphone", stream);
 
 						let audioContext = new AudioContext,
-							micOutput = audioContext.createMediaStreamSource(source),
+							micOutput = audioContext.createMediaStreamSource(stream),
 							/*micDB = moniterDB(micOutput, audioContext, db => {
 								this.input.db = db;
 								this.settings.onMicDB(db);
