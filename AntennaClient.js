@@ -24,9 +24,6 @@ let AntennaClient;
 	 * @param {function (number)} callback 
 	 */
 	function moniterDB(audioNode, audioContext = new AudioContext, callback) {
-		if (audioNode.constructor.name == "MediaStream")
-			audioNode = audioContext.createMediaStreamSource(audioNode);
-
 		let analyser = audioContext.createAnalyser(),
 			jsNode = audioContext.createScriptProcessor(2048, 1, 1);
 
@@ -109,15 +106,14 @@ let AntennaClient;
 				let audioContext = new AudioContext,
 					source = audioContext.createMediaStreamSource(stream),
 					gain = audioContext.createGain(),
-					dbMeasurer = moniterDB(gain, audioContext, db => this.peerOutputs[id].db = db),
+					//dbMeasurer = moniterDB(gain, audioContext, db => this.peerOutputs[id].db = db),
 					destination = audioContext.createMediaStreamDestination(),
 					audio = new Audio;
 
 				gain.gain.value = this.settings.gain;
 
 				source.connect(gain);
-				//gain aready connected to dbMeasurer
-				dbMeasurer.connect(destination);
+				gain.connect(destination);
 
 				audio.srcObject = destination.stream;
 				//audio.src = URL.createObjectURL(destination.stream)
@@ -285,10 +281,11 @@ let AntennaClient;
 						this.log("Connected to Microphone", stream);
 
 						let audioContext = new AudioContext,
-							micOutput = moniterDB(stream, audioContext, db => {
+							micOutput = audioContext.createMediaStreamSource(audioNode),
+							/*micDB = moniterDB(micOutput, audioContext, db => {
 								this.input.db = db;
 								this.settings.onMicDB(db);
-							}),
+							}),*/
 							destination = audioContext.createMediaStreamDestination();
 
 						micOutput.connect(destination);
