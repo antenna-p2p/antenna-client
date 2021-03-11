@@ -63,6 +63,7 @@ let AntennaClient;
 				outputId: "communications",
 				onMicDB: _ => 0,
 				onSpeakerDB: _ => 0,
+				onMessage: _ => 0,
 			};
 			this.input = {
 				audio: new Audio,
@@ -132,6 +133,21 @@ let AntennaClient;
 					audio,
 				});
 			};
+            
+            //Setup Data Channel
+            let dataChannel = peerConnection.createDataChannel("dataChannel",{reliable:true});
+            
+            dataChannel.onerror = e=>{
+                console.log("Data Channel Error: "+e); 
+            }
+            dataChannel.onmessage = e=> this.settings.onMessage.call(this,e.data);
+            dataChannel.onclose = ()=>{
+                console.log("Data Channel Closed"); 
+            }
+            
+            //TODO: store data channel somewhere
+            
+            
 			this.peerOutputs[id] = {};
 			return peerConnection;
 		}
@@ -174,6 +190,9 @@ let AntennaClient;
 				this.roomLoaded = true;
 			}, 0);
 		}
+		sendMessage(data) {
+            Object.values(this.peerOutputs).forEach(peer => peer.dataChanel.send(data));
+        }
 
 		close() {
 			this.socket.close();
@@ -255,6 +274,10 @@ let AntennaClient;
 			this.settings.onSpeakerDB = _ =>
 				callback(this.peerOutputs.reduce((s, p) => s + p.db, 0) / this.peerOutputs.length);
 		}
+		
+		onMessageRecived(callback) {
+            this.settings.onMessage = callback;
+        }
 
 		setSpeaker(deviceId) {
 			this.settings.outputId = deviceId;
