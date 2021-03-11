@@ -1,4 +1,4 @@
-import { AntennaClient } from "AntennaClient.js";
+import { AntennaClient } from "./AntennaClient.js";
 
 const
 	ROOM_FORM = document.getElementById("vc-form"),
