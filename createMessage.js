@@ -1,5 +1,3 @@
-"use strict";
-
 const
 	createMsgForm = document.getElementById('createMsgForm'),
 	msgContainer = document.getElementById("msgContainer");

@@ -1,0 +1,10 @@
+[] means need to think of a better name
+structure
+
+[Chatroom]
+	[Person in call] (self, others)
+		> voice stuff
+		> video stuff
+		> text stuff
+
+chatrooms can hold other chatrooms, works like a tree diagram like mumble
