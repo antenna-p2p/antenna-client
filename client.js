@@ -8,7 +8,7 @@ const
 
 let client = new AntennaClient;
 
-client.setupSockets();
+client.setupSocket();
 
 GETMIC_BTN.addEventListener("click", () => {
 	GETMIC_BTN.disabled = true;
@@ -23,3 +23,5 @@ JOINROOM_BTN.addEventListener("click", () => {
 window.onunload = window.onbeforeunload = () => {
 	client.close();
 };
+
+window.client = client;

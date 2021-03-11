@@ -16,11 +16,11 @@ const DEFAULT_OPTIONS = {
 
 /**
  * monitors volume of audio node
- * @param {AudioNode} audioNode 
+ * @param {AudioNode} audioNode
  * @param {AudioContext} [audioContext]
- * @param {function (number)} callback 
+ * @param {function (number)} callback
  */
-function moniterDB(audioNode, audioContext = new AudioContext, callback) {
+function monitorDB(audioNode, audioContext = new AudioContext, callback) {
 	let analyser = audioContext.createAnalyser(),
 		jsNode = audioContext.createScriptProcessor(2048, 1, 1);
 
@@ -67,131 +67,28 @@ class AntennaClient {
 		};
 	}
 
+	/*
+	 * Socket
+	 */
 	emit(...p) {
 		if (this.socket)
 			this.socket.emit(...p);
+		else
+			console.warn("Tried to use socket when it doesn't exist!");
 	}
-
 	on(...p) {
 		if (this.socket)
 			this.socket.on(...p);
+		else
+			console.warn("Tried to use socket when it doesn't exist!");
 	}
-
-	createPeerConnection(id) {
-		let peerConnection = new RTCPeerConnection(this.config);
-		this.peerConnections[id] = peerConnection;
-
-		peerConnection.onicecandidate = event => {
-			if (event.candidate)
-				this.emit("candidate", { id, candidate: event.candidate });
-		};
-		// Setup Input Stream
-		let inputStream = this.input.audio.srcObject;
-		inputStream.getTracks().forEach(track => peerConnection.addTrack(track, inputStream));
-
-		// Setup Output Stream
-		peerConnection.ontrack = event => {
-			let stream = new MediaStream;
-			event.streams[0].getAudioTracks().forEach(track => stream.addTrack(track));
-			// for some reason you have to stream peer connections to an audio element before you can do anything else to it
-			{
-				let audio = new Audio;
-				audio.muted = true;
-				audio.srcObject = stream;
-				audio.play();
-			}
-
-			let audioContext = new AudioContext,
-				source = audioContext.createMediaStreamSource(stream),
-				gain = audioContext.createGain(),
-				//dbMeasurer = moniterDB(gain, audioContext, db => this.peerOutputs[id].db = db),
-				destination = audioContext.createMediaStreamDestination(),
-				audio = new Audio;
-
-			gain.gain.value = this.settings.gain;
-
-			source.connect(gain);
-			gain.connect(destination);
-
-			audio.srcObject = destination.stream;
-			//audio.src = URL.createObjectURL(destination.stream)
-			audio.play();
-			/* // the communications device only exists on windows
-			if (audio.setSinkId && this.settings.outputId) // TODO: better support check
-				audio.setSinkId(this.settings.outputId);
-			*/
-
-			Object.assign(this.peerOutputs[id], {
-				stream,
-				source,
-				gain,
-				audioContext,
-				destination,
-				audio,
-			});
-		};
-
-		// Setup Data Channel
-		let dataChannel = peerConnection.createDataChannel("dataChannel", { reliable: true });
-
-		dataChannel.onerror = e => console.log(`Data Channel Error: `, e);
-		dataChannel.onmessage = e => this.settings.onMessage.call(this, e.data);
-		dataChannel.onclose = () => console.log("Data Channel Closed");
-
-		// TODO: store data channel somewhere
-
-		this.peerOutputs[id] = {};
-		return peerConnection;
-	}
-
-	updateStatus({ id, status } = {}) {
-		let target;
-		if (id) {
-			target = this.peerOutputs[id];
-		} else {
-			target = this;
-			status = this.settings;
-		}
-		if (target.statusDot)
-			target.statusDot.setColor(status.gain > 0 ? "green" : "red");
-	}
-
-	disconnectFromPeer(id) {
-		if (!this.peerConnections[id]) {
-			this.peerConnections[id].close();
-			delete this.peerConnections[id];
-		}
-		if (this.peerOutputs[id])
-			delete this.peerOutputs[id];
-	}
-
-	disconnectFromAllPeers() {
-		for (let id in this.peerConnections)
-			this.disconnectFromPeer(id);
-	}
-
-	joinRoom(room = this.room.roomId) {
-		this.roomLoaded = false;
-		this.disconnectFromAllPeers();
-		if (!room.roomId)
-			room = { roomId: room };
-		this.emit("joinRoom", room.roomId);
-		this.room = room;
-
-		setTimeout(_ => {
-			this.roomLoaded = true;
-		}, 0);
-	}
-
-	sendMessage(data) {
-		Object.values(this.peerOutputs).forEach(peer => peer.dataChanel.send(data));
-	}
-
 	close() {
-		this.socket.close();
+		if (this.socket)
+			this.socket.close();
+		else
+			console.warn("Tried to use socket when it doesn't exist!");
 	}
-
-	setupSockets() {
+	setupSocket() {
 		this.socket = io.connect(this.ip);
 		this.on("connect", () => {
 			this.log(`Connected to ${this.ip}`);
@@ -249,6 +146,118 @@ class AntennaClient {
 		});
 	}
 
+
+	createPeerConnection(id) {
+		let peerConnection = new RTCPeerConnection(this.config);
+		this.peerConnections[id] = peerConnection;
+
+		peerConnection.onicecandidate = event => {
+			if (event.candidate)
+				this.emit("candidate", { id, candidate: event.candidate });
+		};
+
+		this.peerOutputs[id] = {};
+
+		// Setup Data Channel
+		{
+			let dataChannel = peerConnection.createDataChannel("dataChannel", { reliable: true });
+
+			dataChannel.onerror = e => console.log(`Data Channel Error: `, e);
+			dataChannel.onmessage = e => this.settings.onMessage.call(this, e.data);
+			dataChannel.onclose = () => console.log("Data Channel Closed");
+
+			this.peerOutputs[id].dataChannel = dataChannel;
+		}
+
+		// Setup Input Stream
+		{
+			let inputStream = this.input.audio.srcObject;
+			inputStream.getTracks().forEach(track => peerConnection.addTrack(track, inputStream));
+		}
+
+		// Setup Output Stream
+		peerConnection.ontrack = event => {
+			let stream = new MediaStream;
+			event.streams[0].getAudioTracks().forEach(track => stream.addTrack(track));
+			// for some reason you have to stream peer connections to an audio element before you can do anything else to it
+			{
+				let audio = new Audio;
+				audio.muted = true;
+				audio.srcObject = stream;
+				audio.play();
+			}
+
+			let audioContext = new AudioContext,
+				source = audioContext.createMediaStreamSource(stream),
+				gain = audioContext.createGain(),
+				//dbMeasurer = monitorDB(gain, audioContext, db => this.peerOutputs[id].db = db),
+				destination = audioContext.createMediaStreamDestination(),
+				audio = new Audio;
+
+			gain.gain.value = this.settings.gain;
+
+			source.connect(gain);
+			gain.connect(destination);
+
+			audio.srcObject = destination.stream;
+			//audio.src = URL.createObjectURL(destination.stream)
+			audio.play();
+			/* // the communications device only exists on windows
+			if (audio.setSinkId && this.settings.outputId) // TODO: better support check
+				audio.setSinkId(this.settings.outputId);
+			*/
+
+			Object.assign(this.peerOutputs[id], {
+				stream,
+				source,
+				gain,
+				audioContext,
+				destination,
+				audio,
+			});
+		};
+
+		return peerConnection;
+	}
+
+	joinRoom(room = this.room.roomId) {
+		if (!room.roomId)
+			room = { roomId: room };
+
+		this.disconnectFromAllPeers();
+		this.emit("joinRoom", room.roomId);
+		this.room = room;
+	}
+
+	updateStatus({ id, status } = {}) {
+		let target;
+		if (id) {
+			target = this.peerOutputs[id];
+		} else {
+			target = this;
+			status = this.settings;
+		}
+		if (target.statusDot)
+			target.statusDot.setColor(status.gain > 0 ? "green" : "red");
+	}
+
+	disconnectFromPeer(id) {
+		if (this.peerConnections[id]) {
+			this.peerConnections[id].close();
+			delete this.peerConnections[id];
+		}
+		if (this.peerOutputs[id])
+			delete this.peerOutputs[id];
+	}
+	disconnectFromAllPeers() {
+		for (let id in this.peerConnections)
+			this.disconnectFromPeer(id);
+	}
+
+	sendMessage(data) {
+		Object.values(this.peerOutputs).forEach(peer => peer.dataChannel.send(data));
+	}
+
 	setGain(value) {
 		this.settings.gain = value;
 		Object.values(this.peerOutputs).forEach(peer => peer.gain.gain.value = value);
@@ -256,7 +265,10 @@ class AntennaClient {
 		this.emit("status", this.settings);
 	}
 
-	// these on functions don't seem great
+	/*
+	 * Callbacks
+	 */
+	// TODO: generic on function, multiple callbacks at once (probably should extend sarpnt EventHandler class)
 	onMicDB(callback) {
 		this.settings.onMicDB = callback;
 	}
@@ -278,7 +290,6 @@ class AntennaClient {
 		});
 	}
 
-
 	setMicrophone(deviceId) {
 		this.settings.inputId = deviceId;
 		// Media Constraints
@@ -294,7 +305,7 @@ class AntennaClient {
 
 					let audioContext = new AudioContext,
 						micOutput = audioContext.createMediaStreamSource(stream),
-						/*micDB = moniterDB(micOutput, audioContext, db => {
+						/*micDB =omoniterDB(micOutput, audioContext, db => {
 							this.input.db = db;
 							this.settings.onMicDB(db);
 						}),*/
