@@ -1,0 +1,14 @@
+.msg {
+	display: block;
+	border: 1px solid black;
+	box-sizing: content-box;
+	width: 100%;
+	margin-top: .5rem;
+	margin-bottom: .5rem;
+	max-height: 8rem;
+	overflow: auto;
+}
+
+.msg-frame {
+	width: 100%;
+}
