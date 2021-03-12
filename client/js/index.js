@@ -1,5 +1,5 @@
 import { AntennaClient } from "./AntennaClient.js";
-import { createMessage as displayMessage } from "./createMessage.js";
+import { displayMessage } from "./displayMessage.js";
 import { getFormData } from "./helpers.js";
 
 const
@@ -11,8 +11,6 @@ const
 let client = new AntennaClient;
 
 client.setupSocket();
-
-client.onMessageRecived(displayMessage());
 
 GETMIC_BTN.addEventListener("click", () => {
 	GETMIC_BTN.disabled = true;
@@ -33,8 +31,8 @@ createMsgForm.addEventListener("submit", function _eventSendMessage(event) {
 	event.preventDefault();
 	const FORM_DATA = getFormData(event.target);
 	console.log(FORM_DATA);
-	sendTextMessage(FORM_DATA.msgContent)
-	displayMessage(FORM_DATA.msgContent, FORM_DATA.sandboxType);
+	sendTextMessage(FORM_DATA.msgContent);
+	//displayMessage(FORM_DATA.msgContent, FORM_DATA.sandboxType);
 });
 
 // TODO: this functions should be moved
@@ -42,13 +40,15 @@ function sendTextMessage(text) {
 	client.sendMessage({ type: "textMessage", text });
 }
 client.onMessageRecived(function (msg) {
+	console.debug(`recieved RTC message:`, msg);
 	switch (msg.type) {
 		case "textMessage":
-			displayMessage(msg.text);
+			//displayMessage(msg.text);
+			break;
 		default:
 			console.warn(`Invalid server message`, msg);
 	}
 });
 
 window.client = client;
-window.createMessage = displayMessage; // TODO: for testing, delete this later
+window.displayMessage = displayMessage; // TODO: for testing, delete this later

@@ -1,4 +1,4 @@
-import { makeId } from "./helpers.js";
+import { makeId, getFormData } from "./helpers.js";
 
 const msgContainer = document.getElementById("msgContainer");
 
@@ -12,7 +12,7 @@ window.addEventListener("message", function getWindowMessage(event) {
 
 let msgIframes = {};
 
-function displayMessage(msgText, sandboxType = getFormData(createMsgForm).sandboxType) { // TODO: edit sandboxType default paramter when frontend is worked on
+function displayMessage(msgText, sandboxType = getFormData(createMsgForm).sandboxType) { // TODO: edit sandboxType default paramter when frontend is worked on, remove getFormData if it's no longer needed
 	let msg = document.createElement("div");
 	msg.className = "msg";
 	switch (sandboxType) {
@@ -44,4 +44,4 @@ function displayMessage(msgText, sandboxType = getFormData(createMsgForm).sandbo
 	}
 }
 
-export { displayMessage as createMessage };
+export { displayMessage };
