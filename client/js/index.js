@@ -1,5 +1,5 @@
 import { AntennaClient } from "./AntennaClient.js";
-import { createMessage } from "./createMessage.js";
+import { createMessage as displayMessage } from "./createMessage.js";
 import { getFormData } from "./helpers.js";
 
 const
@@ -12,7 +12,7 @@ let client = new AntennaClient;
 
 client.setupSocket();
 
-client.onMessageRecived(createMessage());
+client.onMessageRecived(displayMessage());
 
 GETMIC_BTN.addEventListener("click", () => {
 	GETMIC_BTN.disabled = true;
@@ -29,12 +29,26 @@ window.onunload = window.onbeforeunload = () => {
 };
 
 const createMsgForm = document.getElementById("createMsgForm");
-createMsgForm.addEventListener("submit", function _eventCreateMessage(event) {
+createMsgForm.addEventListener("submit", function _eventSendMessage(event) {
 	event.preventDefault();
 	const FORM_DATA = getFormData(event.target);
 	console.log(FORM_DATA);
-	createMessage(FORM_DATA.msgContent, FORM_DATA.sandboxType);
+	sendTextMessage(FORM_DATA.msgContent)
+	displayMessage(FORM_DATA.msgContent, FORM_DATA.sandboxType);
+});
+
+// TODO: this functions should be moved
+function sendTextMessage(text) {
+	client.sendMessage({ type: "textMessage", text });
+}
+client.onMessageRecived(function (msg) {
+	switch (msg.type) {
+		case "textMessage":
+			displayMessage(msg.text);
+		default:
+			console.warn(`Invalid server message`, msg);
+	}
 });
 
 window.client = client;
-window.createMessage = createMessage; // TODO: for testing, delete this later
+window.createMessage = displayMessage; // TODO: for testing, delete this later

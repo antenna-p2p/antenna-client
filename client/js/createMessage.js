@@ -12,7 +12,7 @@ window.addEventListener("message", function getWindowMessage(event) {
 
 let msgIframes = {};
 
-function createMessage(msgText, sandboxType = getFormData(createMsgForm).sandboxType) { // TODO: edit sandboxType default paramter when frontend is worked on
+function displayMessage(msgText, sandboxType = getFormData(createMsgForm).sandboxType) { // TODO: edit sandboxType default paramter when frontend is worked on
 	let msg = document.createElement("div");
 	msg.className = "msg";
 	switch (sandboxType) {
@@ -44,4 +44,4 @@ function createMessage(msgText, sandboxType = getFormData(createMsgForm).sandbox
 	}
 }
 
-export { createMessage };
+export { displayMessage as createMessage };
