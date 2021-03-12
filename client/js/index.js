@@ -35,19 +35,13 @@ createMsgForm.addEventListener("submit", function _eventSendMessage(event) {
 	displayMessage(FORM_DATA.msgContent, FORM_DATA.sandboxType);
 });
 
-// TODO: this functions should be moved
+// TODO: these functions aren't designed well, client should have multiple data channels each for different purpouses and different functions for each
 function sendTextMessage(text) {
-	client.sendMessage({ type: "textMessage", text });
+	client.sendMessage(text);
 }
 client.onMessageRecived(function (msg) {
-	console.debug(`recieved RTC message:`, msg);
-	switch (msg.type) {
-		case "textMessage":
-			displayMessage(msg.text);
-			break;
-		default:
-			console.warn(`Invalid server message`, msg);
-	}
+	console.debug(`recieved text message`, msg);
+	displayMessage(msg);
 });
 
 window.client = client;
