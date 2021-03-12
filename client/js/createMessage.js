@@ -1,37 +1,6 @@
-const
-	createMsgForm = document.getElementById("createMsgForm"),
-	msgContainer = document.getElementById("msgContainer");
+import { makeId } from "./helpers.js";
 
-/**
- * create random base64 string
- * @param {number} [len] length of id
- * @param {string[]} [existing] blacklist of ids (to prevent same id multiple times)
- */
-function makeId(len = 12, existing) {
-	const CHARS = "0123456789qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM-_";
-	let id;
-	while (!id || existing && existing.includes(id)) {
-		id = "";
-		for (let i = 0; i < len; i++)
-			id += CHARS[Math.floor(Math.random() * CHARS.length)];
-	}
-	return id;
-}
-
-function getFormData(form) {
-	let data = {},
-		inputs = form.querySelectorAll("[name]:not([type=radio])"),
-		radios = form.querySelectorAll("[name][type=radio]");
-
-	for (let elem of inputs)
-		data[elem.name] = elem.value;
-
-	for (let elem of radios)
-		if (elem.checked)
-			data[elem.name] = elem.dataset.value;
-
-	return data;
-}
+const msgContainer = document.getElementById("msgContainer");
 
 window.addEventListener("message", function getWindowMessage(event) {
 	let frame = msgIframes[event.data.id];
@@ -75,12 +44,4 @@ function createMessage(msgText, sandboxType = getFormData(createMsgForm).sandbox
 	}
 }
 
-createMsgForm.addEventListener("submit", function _eventCreateMessage(event) {
-	event.preventDefault();
-	const FORM_DATA = getFormData(event.target);
-	console.log(FORM_DATA);
-	createMessage(FORM_DATA.msgContent, FORM_DATA.sandboxType);
-});
-
-window.createMessage = createMessage; // TODO: for testing, delete this later
 export { createMessage };

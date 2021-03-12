@@ -1,4 +1,6 @@
 import { AntennaClient } from "./AntennaClient.js";
+import { createMessage } from "./createMessage.js";
+import { getFormData } from "./helpers.js";
 
 const
 	ROOM_FORM = document.getElementById("vc-form"),
@@ -9,6 +11,8 @@ const
 let client = new AntennaClient;
 
 client.setupSocket();
+
+client.onMessageRecived(createMessage());
 
 GETMIC_BTN.addEventListener("click", () => {
 	GETMIC_BTN.disabled = true;
@@ -24,4 +28,13 @@ window.onunload = window.onbeforeunload = () => {
 	client.close();
 };
 
+const createMsgForm = document.getElementById("createMsgForm");
+createMsgForm.addEventListener("submit", function _eventCreateMessage(event) {
+	event.preventDefault();
+	const FORM_DATA = getFormData(event.target);
+	console.log(FORM_DATA);
+	createMessage(FORM_DATA.msgContent, FORM_DATA.sandboxType);
+});
+
 window.client = client;
+window.createMessage = createMessage; // TODO: for testing, delete this later
