@@ -32,7 +32,7 @@ createMsgForm.addEventListener("submit", function _eventSendMessage(event) {
 	const FORM_DATA = getFormData(event.target);
 	console.log(FORM_DATA);
 	sendTextMessage(FORM_DATA.msgContent);
-	//displayMessage(FORM_DATA.msgContent, FORM_DATA.sandboxType);
+	displayMessage(FORM_DATA.msgContent, FORM_DATA.sandboxType);
 });
 
 // TODO: this functions should be moved
@@ -43,7 +43,7 @@ client.onMessageRecived(function (msg) {
 	console.debug(`recieved RTC message:`, msg);
 	switch (msg.type) {
 		case "textMessage":
-			//displayMessage(msg.text);
+			displayMessage(msg.text);
 			break;
 		default:
 			console.warn(`Invalid server message`, msg);
