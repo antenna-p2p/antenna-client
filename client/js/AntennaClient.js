@@ -155,6 +155,16 @@ class AntennaClient {
 			if (event.candidate)
 				this.emit("candidate", { id, candidate: event.candidate });
 		};
+		
+		peerConnection.ondatachannel = event =>{
+			let dataChannel = event.channel;
+			dataChannel.onerror = e => console.log(`In Data Channel Error: `, e);
+			dataChannel.onmessage = e => this.settings.onMessage.call(this, e.data);
+			dataChannel.onclose = () => console.log("In Data Channel Closed");
+			dataChannel.onopen = () => console.log("In Data Channel Opened");
+			
+			
+		}
 
 		this.peerOutputs[id] = {};
 
@@ -162,9 +172,10 @@ class AntennaClient {
 		{
 			let dataChannel = peerConnection.createDataChannel("dataChannel", { reliable: true });
 
-			dataChannel.onerror = e => console.log(`Data Channel Error: `, e);
-			dataChannel.onmessage = e => this.settings.onMessage.call(this, e.data);
-			dataChannel.onclose = () => console.log("Data Channel Closed");
+			dataChannel.onerror = e => console.log(`Out Data Channel Error: `, e);
+			//dataChannel.onmessage = e => this.settings.onMessage.call(this, e.data);
+			dataChannel.onclose = () => console.log("Out Data Channel Closed");
+			dataChannel.onopen = () => console.log("Out Data Channel Opened");
 
 			this.peerOutputs[id].dataChannel = dataChannel;
 		}
