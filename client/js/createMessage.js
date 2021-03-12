@@ -43,7 +43,7 @@ window.addEventListener("message", function getWindowMessage(event) {
 
 let msgIframes = {};
 
-function createMessage(msgText, sandboxType = FORM_DATA.msgContent) { // TODO: edit sandboxType default paramter when frontend is worked on
+function createMessage(msgText, sandboxType = getFormData(createMsgForm).sandboxType) { // TODO: edit sandboxType default paramter when frontend is worked on
 	let msg = document.createElement("div");
 	msg.className = "msg";
 	switch (sandboxType) {
@@ -79,7 +79,7 @@ createMsgForm.addEventListener("submit", function _eventCreateMessage(event) {
 	event.preventDefault();
 	const FORM_DATA = getFormData(event.target);
 	console.log(FORM_DATA);
-	createMessage(FORM_DATA.sandboxType);
+	createMessage(FORM_DATA.msgContent, FORM_DATA.sandboxType);
 });
 
 window.createMessage = createMessage; // TODO: for testing, delete this later

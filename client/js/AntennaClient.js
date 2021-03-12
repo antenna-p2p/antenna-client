@@ -4,7 +4,7 @@ const DEFAULT_OPTIONS = {
 	//ip: "ws://localhost:3001",
 	ip: "antennatest.herokuapp.com",
 	config: {
-		iceServers: [ // what is iceservers
+		iceServers: [
 			{
 				urls: ["stun:stun.l.google.com:19302"],
 			},
@@ -160,11 +160,11 @@ class AntennaClient {
 
 		// Setup Data Channel
 		{
-			let dataChannel = peerConnection.createDataChannel("dataChannel", { reliable: true });
+			let dataChannel = peerConnection.createDataChannel("dataChannel");
 
-			dataChannel.onerror = e => console.log(`Data Channel Error: `, e);
-			dataChannel.onmessage = e => this.settings.onMessage.call(this, e.data);
-			dataChannel.onclose = () => console.log("Data Channel Closed");
+			dataChannel.onerror = e => console.log("Data Channel Error: ", e);
+			dataChannel.onmessage = function (e) {this.settings.onMessage.call(this, e.data)};
+			dataChannel.onclose = e => console.log("Data Channel Closed: ", e);
 
 			this.peerOutputs[id].dataChannel = dataChannel;
 		}
