@@ -39,9 +39,9 @@ CREATE_MSG_CONTENT.addEventListener("keypress", function _eventSendMessage(event
 
 // TODO: these functions aren't designed well, client should have multiple data channels each for different purpouses and different functions for each
 function sendTextMessage(text) {
-	client.sendMessage(text);
+	client.send("text",text);
 }
-client.onMessageRecived(function (msg) {
+client.onDataRecived("text",function (msg) {
 	console.debug(`recieved text message`, msg);
 	displayMessage(msg);
 });
