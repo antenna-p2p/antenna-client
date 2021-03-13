@@ -1,7 +1,7 @@
 # Antenna
 Peer to peer communication library
 
-#git flow setup
+## git flow setup
 ```
 $ git flow init
 
