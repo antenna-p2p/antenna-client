@@ -30,7 +30,6 @@ const createMsgForm = document.getElementById("createMsgForm");
 createMsgForm.addEventListener("submit", function _eventSendMessage(event) {
 	event.preventDefault();
 	const FORM_DATA = getFormData(event.target);
-	console.log(FORM_DATA);
 	sendTextMessage(FORM_DATA.msgContent);
 	displayMessage(FORM_DATA.msgContent, FORM_DATA.sandboxType);
 });
