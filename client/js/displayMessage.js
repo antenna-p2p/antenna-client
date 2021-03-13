@@ -1,6 +1,8 @@
 import { makeId, getFormData } from "./helpers.js";
 
-const msgContainer = document.getElementById("msgContainer");
+const
+	MSG_CONTAINER = document.getElementById("msgContainer"),
+	MSG_DISPLAY_FORM = document.getElementById("msgDisplay-form");
 
 window.addEventListener("message", function getWindowMessage(event) {
 	let frame = msgIframes[event.data.id];
@@ -12,13 +14,13 @@ window.addEventListener("message", function getWindowMessage(event) {
 
 let msgIframes = {};
 
-function displayMessage(msgText, sandboxType = getFormData(createMsgForm).sandboxType) { // TODO: edit sandboxType default paramter when frontend is worked on, remove getFormData if it's no longer needed
+function displayMessage(msgText, sandboxType = getFormData(MSG_DISPLAY_FORM).sandboxType) { // TODO: edit sandboxType default paramter when frontend is worked on, remove getFormData if it's no longer needed
 	let msg = document.createElement("div");
 	msg.className = "msg";
 	switch (sandboxType) {
 		case "none": {
 			msg.innerText = msgText;
-			msgContainer.append(msg);
+			MSG_CONTAINER.append(msg);
 		} break;
 		case "noStyle":
 		case "inlineStyle":
@@ -34,7 +36,7 @@ function displayMessage(msgText, sandboxType = getFormData(createMsgForm).sandbo
 			msgIframes[id] = frame;
 
 			msg.append(frame);
-			msgContainer.append(msg);
+			MSG_CONTAINER.append(msg);
 			frame.addEventListener("load", function () {
 				frame.contentWindow.postMessage({ id, msg: msgText }, "*");
 			});
