@@ -41,29 +41,34 @@ function monitorDB(audioNode, audioContext = new AudioContext, callback) {
 class AntennaPeer {
 	constructor(id,client) {
 		let peer = this;
-		let connection = new RTCPeerConnection(/*client.config*/);
+		let connection = new RTCPeerConnection(client.config);
 
 		connection.onicecandidate = event => {
 			if (event.candidate)
 				client.emit("candidate", { id, candidate: event.candidate });
 		};
 		connection.ontrack = event =>{
-			let stream = new MediaStream;
-			event.streams[0].getAudioTracks().forEach(track => stream.addTrack(track));
+			let audioStream = new MediaStream;
+			let videoStream = new MediaStream;
+			event.streams[0].getAudioTracks().forEach(track => audioStream.addTrack(track));
+			event.streams[0].getVideoTracks().forEach(track => videoStream.addTrack(track))
 			// for some reason you have to stream peer connections to an audio element before you can do anything else to it
 			{
 				let audio = new Audio;
 				audio.muted = true;
-				audio.srcObject = stream;
+				audio.srcObject = audioStream;
 				audio.play();
 			}
+			let video = document.createElement("video");
+			video.srcObject = event.streams[0];
+			video.play();
 
 			let audioContext = new AudioContext,
-				source = audioContext.createMediaStreamSource(stream),
+				source = audioContext.createMediaStreamSource(audioStream),
 				gain = audioContext.createGain(),
 				//dbMeasurer = monitorDB(gain, audioContext, db => client.peerOutputs[id].db = db),
 				destination = audioContext.createMediaStreamDestination(),
-				audio = new Audio;
+				audio = new Audio
 
 			gain.gain.value = client.settings.gain;
 
@@ -78,12 +83,13 @@ class AntennaPeer {
 				audio.setSinkId(client.settings.outputId);
 			*/
 			Object.assign(this, {
-				stream,
+				stream: audioStream,
 				source,
 				gain,
 				audioContext,
 				destination,
 				audio,
+				video
 			});
 		}
 
@@ -215,6 +221,8 @@ class AntennaClient {
 		};
 		this.input = {
 			audio: new Audio,
+			video: document.createElement("video"),
+			constraints:{}
 		};
 	}
 
@@ -288,7 +296,7 @@ class AntennaClient {
 	createPeer(id) {
 		let peer = new AntennaPeer(id,this);
 		peer.createChannel("text");
-		if(this.input.audio.srcObject) peer.setInputStream(this.input.audio.srcObject)
+		if(this.input.video.srcObject) peer.setInputStream(this.input.video.srcObject)
 		this.peers[id] = peer;
 		return peer;
 	}
@@ -362,16 +370,27 @@ class AntennaClient {
 	setMicrophone(deviceId) {
 		this.settings.inputId = deviceId;
 		// Media Constraints
-		const CONSTRAINTS = {
-			audio: { deviceId }
-		};
+		this.input.constraints.audio= { deviceId };
 
+		this.updateInputDevices();
+	}
+
+	setWebcam() {
+		this.input.constraints.video = { facingMode: "user" };
+		this.updateInputDevices();
+	}
+
+	updateInputDevices() {
+		const CONSTRAINTS = this.input.constraints;
 		return new Promise((resolve, reject) => {
 			navigator.mediaDevices
 				.getUserMedia(CONSTRAINTS)
 				.then(stream => {
-					this.log("Connected to Microphone", stream);
+					if(CONSTRAINTS.video) this.log("Connected to Webcam")
 
+					if(CONSTRAINTS.audio) {
+					this.log("Connected to Microphone", stream);
+					
 					let audioContext = new AudioContext,
 						micOutput = audioContext.createMediaStreamSource(stream),
 						/*micDB = omoniterDB(micOutput, audioContext, db => {
@@ -382,9 +401,11 @@ class AntennaClient {
 
 					micOutput.connect(destination);
 					this.devices.input = destination.stream;
+					}
 
-					Object.values(this.peers).forEach(peer => peer.setInputStream(stream));
+					//Object.values(this.peers).forEach(peer => peer.setInputStream(stream));*/
 					this.input.audio.srcObject = stream;
+					this.input.video.srcObject = stream;
 					resolve();
 				})
 				.catch(e => console.error(e));
