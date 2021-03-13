@@ -77,30 +77,24 @@ button {
  * feature specific styling
  */
 
-#roomWindow {
+#settingsWindow {
 	font-size: var(--font-size-small);
 	background-color: var(--background2);
 }
 
-#msgContainer {
-
-}
-
 .msg {
 	display: block;
-	border: 1px solid black;
-	box-sizing: content-box;
 	width: 100%;
-	margin-top: .5rem;
-	margin-bottom: .5rem;
-	max-height: 8rem;
+	margin: .4rem 0;
+	max-height: 8em;
 	overflow: auto;
 }
 .msg-frame {
 	width: 100%;
+	border: none;
 }
 
-#msgContent {
+#createMsg-content {
 	resize: vertical;
 	width: 100%;
 }

@@ -4,6 +4,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link href="./css/stylesheet.css" rel="stylesheet">
 	<style>
 		body {
 			background-color: hsla(0, 0%, 0%, 0);
@@ -12,21 +13,19 @@
 	</style>
 </head>
 
-<body class="text-light">
+<body>
 	<script>
-		{
-			let id;
+		"use strict";
+		window.addEventListener('message', function getWindowMessage(event) {
+			let id = event.data.id;
+			document.body.innerHTML = event.data.msg;
+
 			const RESIZE = new ResizeObserver(function resize(event) {
 				let { width, height } = document.body.getBoundingClientRect()
 				parent.postMessage({ id, width, height }, location.origin)
 			});
 			RESIZE.observe(document.body);
-
-			window.addEventListener('message', function getWindowMessage(event) {
-				id = event.data.id;
-				document.body.innerHTML = event.data.msg;
-			});
-		}
+		});
 	</script>
 </body>
 
