@@ -3,10 +3,10 @@ import { displayMessage } from "./displayMessage.js";
 import { getFormData } from "./helpers.js";
 
 const
-	ROOM_FORM = document.getElementById("vc-form"),
 	GETMIC_BTN = document.getElementById("vc-getMic"),
-	ROOMID_INPUT = document.getElementById("vc-roomId"),
-	JOINROOM_BTN = document.getElementById("vc-joinRoom");
+	ROOM_FORM = document.getElementById("room-form"),
+	JOINROOM_BTN = document.getElementById("room-join"),
+	CREATE_MSG_FORM = document.getElementById("createMsg-form");
 
 let client = new AntennaClient;
 
@@ -17,21 +17,21 @@ GETMIC_BTN.addEventListener("click", () => {
 	client.setMicrophone();
 });
 JOINROOM_BTN.addEventListener("click", () => {
-	let roomId = ROOMID_INPUT.value;
-	console.log("Joining room", roomId);
-	client.joinRoom(roomId);
+	const ROOM_SETTINGS = getFormData(ROOM_FORM);
+	console.log("Joining room", ROOM_SETTINGS);
+	// TODO: setup ip and username selection
+	client.joinRoom(ROOM_SETTINGS.roomId);
 });
 
 window.onunload = window.onbeforeunload = () => {
 	client.close();
 };
 
-const createMsgForm = document.getElementById("createMsgForm");
-createMsgForm.addEventListener("submit", function _eventSendMessage(event) {
+CREATE_MSG_FORM.addEventListener("submit", function _eventSendMessage(event) {
 	event.preventDefault();
-	const FORM_DATA = getFormData(event.target);
-	sendTextMessage(FORM_DATA.msgContent);
-	displayMessage(FORM_DATA.msgContent, FORM_DATA.sandboxType);
+	const MESSAGE = getFormData(CREATE_MSG_FORM).msgContent;
+	sendTextMessage(MESSAGE);
+	displayMessage(MESSAGE);
 });
 
 // TODO: these functions aren't designed well, client should have multiple data channels each for different purpouses and different functions for each
@@ -44,4 +44,3 @@ client.onMessageRecived(function (msg) {
 });
 
 window.client = client;
-window.displayMessage = displayMessage; // TODO: for testing, delete this later

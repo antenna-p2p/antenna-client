@@ -1,16 +1,100 @@
-/* TODO: create color variables for theming, make dark theme */
+/*
+ * variables
+ */
+:root {
+	--background: #000;
+	--background2: #111;
+	--background3: #222;
+	--background4: #444;
+	--highlight: #888;
+	--text-color: #eee; /* low contrast #ccc high contrast #fff */
+	--font-size: 1rem;
+	--font-size-large: 2rem;
+	--font-size-small: .8rem;
+}
+
+/*
+ * global changes (like to style elements in general)
+ */
+* {
+	box-sizing: border-box;
+}
+
+body, textarea, input, button {
+	color: var(--text-color);
+}
+body {
+	background-color: var(--background);
+	margin: 0;
+	width: 100vw;
+	height: 100vh;
+	font-size: var(font-size);
+}
+textarea, input, button {
+	color: var(--text-color);
+	font-size: inherit;
+}
+textarea, input {
+	background-color: var(--background3);
+	border: solid 1px var(--highlight);
+	font-size: inherit;
+}
+button {
+	background-color: var(--background4);
+}
+
+/*
+ * quick styling
+ * these should probably be removed, it makes it harder to make custom ui styles
+ */
+.pad { padding: 4px; }
+
+.w100 { width: 100%; }
+.h100 { height: 100%; }
+
+.font-large { font-size: var(--font-size-large); }
+.font-normal { font-size: var(--font-size); }
+.font-small { font-size: var(--font-size-small); }
+
+.flex { display: flex; }
+.flex.column { flex-direction: column; }
+.flex.row { flex-direction: row; }
+.flex.just-start { justify-content: flex-start; }
+.flex.just-end { justify-content: flex-end; }
+.flex.just-center { justify-content: center; }
+.flex.just-space-between { justify-content: space-between; }
+.flex.just-space-around { justify-content: space-around; }
+.flex.just-space-evenly { justify-content: space-evenly; }
+.flex.align-start { align-items: flex-start; }
+.flex.align-end { align-items: flex-end; }
+.flex.align-center { align-items: center; }
+.flex.align-stretch { align-items: stretch; }
+.flex.align-baseline { align-items: baseline; }
+.flex > .grow { flex-grow: 1; }
+.flex > .shrink { flex-shrink: 1; }
+
+/*
+ * feature specific styling
+ */
+
+#settingsWindow {
+	font-size: var(--font-size-small);
+	background-color: var(--background2);
+}
 
 .msg {
 	display: block;
-	border: 1px solid black;
-	box-sizing: content-box;
 	width: 100%;
-	margin-top: .5rem;
-	margin-bottom: .5rem;
-	max-height: 8rem;
+	margin: .4rem 0;
+	max-height: 8em;
 	overflow: auto;
 }
-
 .msg-frame {
+	width: 100%;
+	border: none;
+}
+
+#createMsg-content {
+	resize: vertical;
 	width: 100%;
 }

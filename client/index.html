@@ -6,38 +6,45 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="icon" type="image/png" href="data:image/png;base64,">
 	<title>Antenna Test</title>
-	<link href="css/stylesheet.css" rel="stylesheet">
+	<link href="./css/stylesheet.css" rel="stylesheet">
 </head>
 
 <body>
-	<main class="page-content container">
-		<div class="card">
+	<main class="flex row align-stretch w100 h100">
+		<div id="settingsWindow" class="pad">
 			<form id="vc-form">
 				<button type="button" id="vc-getMic">Get mic</button>
-				<input type="text" name="Room Name" id="vc-roomId" placeholder="Room ID">
-				<button type="button" id="vc-joinRoom">Join Room</button>
+			</form>
+			<br>
+			<form id="room-form">
+				<input type="text" name="serverIp" id="room-serverIp" placeholder="Server IP" value="antennatest.herokuapp.com"><br>
+				<input type="text" name="roomId" id="room-id" placeholder="Room ID"><br>
+				<input type="text" name="username" id="room-name" placeholder="Username"><br>
+				<button type="button" id="room-join">Join Room</button>
+			</form>
+			<br>
+			<form id="msgDisplay-form">
+				<label form="msgDisplay-form" for="frameSandboxType">Chat security options</label>
+				<div id="frameSandboxType" class="font-small">
+					<input type="radio" name="sandboxType" id="msgDisplay-SandboxNone" data-value="none" checked>
+					<label form="createMsgForm" for="msgDisplay-SandboxNone">Text only</label><br>
+					<input type="radio" name="sandboxType" id="msgDisplay-SandboxNoStyle" data-value="noStyle">
+					<label form="createMsgForm" for="msgDisplay-SandboxNoStyle">No styling</label><br>
+					<input type="radio" name="sandboxType" id="msgDisplay-SandboxInlineStyle" data-value="inlineStyle">
+					<label form="createMsgForm" for="msgDisplay-SandboxInlineStyle">Only inline styling</label><br>
+					<input type="radio" name="sandboxType" id="msgDisplay-SandboxAllStyle" data-value="allStyle">
+					<label form="createMsgForm" for="msgDisplay-SandboxAllStyle">All styling</label><br>
+					<input type="radio" name="sandboxType" id="msgDisplay-SandboxAll" data-value="all">
+					<label form="createMsgForm" for="msgDisplay-SandboxAll">All styling and JavaScript</label><br>
+				</div>
 			</form>
 		</div>
-		<div class="card">
-			<form id="createMsgForm">
-				<textarea rows="5" cols="60" name="msgContent" id="msgContent" placeholder="Message Content"></textarea>
-				<br>
-				<label form="createMsgForm" for="frameSandboxType">Security Options</label>
-				<div id="frameSandboxType">
-					<input type="radio" name="sandboxType" id="radioFrameSandboxNone" data-value="none" checked>
-					<label form="createMsgForm" for="radioFrameSandboxNone">Only display raw text</label><br>
-					<input type="radio" name="sandboxType" id="radioFrameSandboxNoStyle" data-value="noStyle">
-					<label form="createMsgForm" for="radioFrameSandboxNoStyle">No styling</label><br>
-					<input type="radio" name="sandboxType" id="radioFrameSandboxInlineStyle" data-value="inlineStyle">
-					<label form="createMsgForm" for="radioFrameSandboxInlineStyle">Only inline styling</label><br>
-					<input type="radio" name="sandboxType" id="radioFrameSandboxAllStyle" data-value="allStyle">
-					<label form="createMsgForm" for="radioFrameSandboxAllStyle">All styling</label><br>
-					<input type="radio" name="sandboxType" id="radioFrameSandboxAll" data-value="all">
-					<label form="createMsgForm" for="radioFrameSandboxAll">All styling and JavaScript</label><br>
-				</div>
+		<div id="chatWindow" class="pad grow flex column just-end">
+			<div id="msgContainer" class="grow"></div>
+			<form id="createMsg-form">
+				<textarea rows="5" cols="60" name="msgContent" id="createMsg-content" placeholder="Message Content"></textarea>
 				<button type="submit" value="Send">Send</button>
 			</form>
-			<div id="msgContainer"></div>
 		</div>
 	</main>
 
