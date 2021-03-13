@@ -6,7 +6,7 @@ const
 	GETMIC_BTN = document.getElementById("vc-getMic"),
 	ROOM_FORM = document.getElementById("room-form"),
 	JOINROOM_BTN = document.getElementById("room-join"),
-	CREATE_MSG_FORM = document.getElementById("createMsg-form");
+	CREATE_MSG_CONTENT = document.getElementById("createMsg-content");
 
 let client = new AntennaClient;
 
@@ -27,11 +27,14 @@ window.onunload = window.onbeforeunload = () => {
 	client.close();
 };
 
-CREATE_MSG_FORM.addEventListener("submit", function _eventSendMessage(event) {
-	event.preventDefault();
-	const MESSAGE = getFormData(CREATE_MSG_FORM).msgContent;
-	sendTextMessage(MESSAGE);
-	displayMessage(MESSAGE);
+CREATE_MSG_CONTENT.addEventListener("keypress", function _eventSendMessage(event) {
+	if (event.key == "Enter" && !(event.altKey || event.ctrlKey || event.metaKey || event.shiftKey)) {
+		event.preventDefault();
+		const MESSAGE = CREATE_MSG_CONTENT.value;
+		CREATE_MSG_CONTENT.value = "";
+		sendTextMessage(MESSAGE);
+		displayMessage(MESSAGE);
+	}
 });
 
 // TODO: these functions aren't designed well, client should have multiple data channels each for different purpouses and different functions for each
