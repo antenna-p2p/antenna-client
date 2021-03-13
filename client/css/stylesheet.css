@@ -28,16 +28,15 @@ body {
 	margin: 0;
 	width: 100vw;
 	height: 100vh;
-	font-size: var(font-size);
+	font-size: var(--font-size);
 }
 textarea, input, button {
 	color: var(--text-color);
-	font-size: inherit;
+	font: inherit;
 }
 textarea, input {
 	background-color: var(--background3);
 	border: solid 1px var(--highlight);
-	font-size: inherit;
 }
 button {
 	background-color: var(--background4);
@@ -95,6 +94,7 @@ button {
 }
 
 #createMsg-content {
-	resize: vertical;
+	resize: none;
 	width: 100%;
+	height: 4em;
 }
