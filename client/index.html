@@ -10,22 +10,22 @@
 </head>
 
 <body>
-	<main class="column">
-		<div>
+	<main class="flex row align-stretch w100 h100">
+		<div id="roomWindow" class="pad">
 			<form id="vc-form">
-				<button type="button" id="vc-getMic">Get mic</button><br>
-				<input type="text" name="Room Name" id="vc-roomId" placeholder="Room ID"><br>
-				<input type="text" name="Username" id="vc-name" placeholder="Username"><br>
+				<button type="button" id="vc-getMic">Get mic</button>
+			</form>
+			<br>
+			<form id="room-form">
+				<input type="text" name="Server IP" id="room-serverIp" placeholder="Server IP" value="antennatest.herokuapp.com"><br>
+				<input type="text" name="Room Name" id="room-id" placeholder="Room ID"><br>
+				<input type="text" name="Username" id="room-name" placeholder="Username"><br>
 				<button type="button" id="vc-joinRoom">Join Room</button>
 			</form>
-		</div>
-		<div>
-			<div id="msgContainer"></div>
-			<form id="createMsgForm">
-				<textarea rows="5" cols="60" name="msgContent" id="msgContent" placeholder="Message Content"></textarea>
-				<br>
-				<label form="createMsgForm" for="frameSandboxType">Security Options</label>
-				<div id="frameSandboxType">
+			<br>
+			<form id="msgSecurityForm">
+				<label form="msgSecurityForm" for="frameSandboxType">Chat security options</label>
+				<div id="frameSandboxType" class="font-small">
 					<input type="radio" name="sandboxType" id="radioFrameSandboxNone" data-value="none" checked>
 					<label form="createMsgForm" for="radioFrameSandboxNone">Only display raw text</label><br>
 					<input type="radio" name="sandboxType" id="radioFrameSandboxNoStyle" data-value="noStyle">
@@ -37,6 +37,12 @@
 					<input type="radio" name="sandboxType" id="radioFrameSandboxAll" data-value="all">
 					<label form="createMsgForm" for="radioFrameSandboxAll">All styling and JavaScript</label><br>
 				</div>
+			</form>
+		</div>
+		<div id="chatWindow" class="pad grow flex column just-end">
+			<div id="msgContainer" class="grow"></div>
+			<form id="createMsgForm">
+				<textarea rows="5" cols="60" name="msgContent" id="msgContent" placeholder="Message Content"></textarea>
 				<button type="submit" value="Send">Send</button>
 			</form>
 		</div>
