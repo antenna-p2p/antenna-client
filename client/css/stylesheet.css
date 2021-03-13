@@ -1,4 +1,26 @@
-/* TODO: create color variables for theming, make dark theme */
+:root {
+	--background: #000;
+	--background2: #222;
+	--background3: #444;
+	--text-color: #eee; /* low contrast #ccc high contrast #fff */
+}
+
+body, textarea, input, button {
+	color: var(--text-color);
+}
+body {
+	background-color: var(--background);
+}
+textarea, input {
+	background-color: var(--background2);
+}
+button {
+	background-color: var(--background3);
+}
+
+.column {
+	
+}
 
 .msg {
 	display: block;
@@ -10,7 +32,6 @@
 	max-height: 8rem;
 	overflow: auto;
 }
-
 .msg-frame {
 	width: 100%;
 }

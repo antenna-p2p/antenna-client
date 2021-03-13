@@ -10,15 +10,17 @@
 </head>
 
 <body>
-	<main class="page-content container">
-		<div class="card">
+	<main class="column">
+		<div>
 			<form id="vc-form">
-				<button type="button" id="vc-getMic">Get mic</button>
-				<input type="text" name="Room Name" id="vc-roomId" placeholder="Room ID">
+				<button type="button" id="vc-getMic">Get mic</button><br>
+				<input type="text" name="Room Name" id="vc-roomId" placeholder="Room ID"><br>
+				<input type="text" name="Username" id="vc-name" placeholder="Username"><br>
 				<button type="button" id="vc-joinRoom">Join Room</button>
 			</form>
 		</div>
-		<div class="card">
+		<div>
+			<div id="msgContainer"></div>
 			<form id="createMsgForm">
 				<textarea rows="5" cols="60" name="msgContent" id="msgContent" placeholder="Message Content"></textarea>
 				<br>
@@ -37,7 +39,6 @@
 				</div>
 				<button type="submit" value="Send">Send</button>
 			</form>
-			<div id="msgContainer"></div>
 		</div>
 	</main>
 
