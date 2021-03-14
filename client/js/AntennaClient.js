@@ -82,7 +82,8 @@ class AntennaPeer {
 				audio.setSinkId(client.settings.outputId);
 			*/
 			Object.assign(this, {
-				stream: audioStream,
+				audioStream,
+				videoStream,
 				source,
 				gain,
 				audioContext,
