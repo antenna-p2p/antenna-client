@@ -14,7 +14,7 @@ client.setupSocket();
 
 GETMIC_BTN.addEventListener("click", () => {
 	GETMIC_BTN.disabled = true;
-	client.setMicrophone();
+	client.addMicrophone();
 });
 JOINROOM_BTN.addEventListener("click", () => {
 	const ROOM_SETTINGS = getFormData(ROOM_FORM);

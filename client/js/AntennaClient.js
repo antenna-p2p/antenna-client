@@ -14,6 +14,21 @@ const DEFAULT_OPTIONS = {
 	static: false,
 };
 
+
+
+function createAudioElement(stream) {
+	let audio = new Audio();
+	audio.srcObject = stream;
+	audio.play();
+	return audio;
+}
+function createVideoElement(stream) {
+	let video = document.createElement("video");
+	video.srcObject = stream;
+	video.play();
+	return video;
+}
+
 /**
  * monitors volume of audio node
  * @param {AudioNode} audioNode
@@ -47,26 +62,25 @@ class AntennaPeer {
 				client.emit("candidate", { id, candidate: event.candidate });
 		};
 		connection.ontrack = event => {
-			let audioStream = new MediaStream(event.streams[0].getAudioTracks()),
-				videoStream = new MediaStream(event.streams[0].getVideoTracks());
-			//event.streams[0].getAudioTracks().forEach(track => audioStream.addTrack(track));
-			//event.streams[0].getVideoTracks().forEach(track => videoStream.addTrack(track));
-			// for some reason you have to stream peer connections to an audio element before you can do anything else to it
+			console.log(event);
+			let track = event.track, stream;
+
+			switch (track.type) {
+				case "audio":
+					stream = new MediaStream([track]);
+					this.streams.audio.push(stream);
+					//document.body.appendChild(createAudioElement(stream));
+					break;
+				case "video":
+					stream = new MediaStream([track]);
+					this.streams.video.push(stream);
+					//document.body.appendChild(createVideoElement(stream));
+					break;
 
 
-			if (videoStream.getTracks().length > 0) {
-				let video = document.createElement("video");
-				video.srcObject = videoStream;
-				video.play();
-
-
-				Object.assign(this, {
-					videoStream,
-					video
-				});
 			}
 
-			if (audioStream.getTracks().length > 0) {
+			/*if (audioStream.getTracks().length > 0) {
 				{
 					let audio = new Audio;
 					audio.muted = true;
@@ -77,33 +91,22 @@ class AntennaPeer {
 					source = audioContext.createMediaStreamSource(audioStream),
 					gain = audioContext.createGain(),
 					//dbMeasurer = monitorDB(gain, audioContext, db => client.peerOutputs[id].db = db),
-					destination = audioContext.createMediaStreamDestination(),
-					audio = new Audio;
+					destination = audioContext.createMediaStreamDestination()
 
 				gain.gain.value = client.settings.gain;
 
 				source.connect(gain);
 				gain.connect(destination);
 
-				audio.srcObject = destination.stream;
-				//audio.src = URL.createObjectURL(destination.stream)
-				audio.play();
-				/* // the communications device only exists on windows
-				if (audio.setSinkId && client.settings.outputId) // TODO: better support check
-					audio.setSinkId(client.settings.outputId);
-				*/
 
 				Object.assign(this, {
 					audioStream,
 					source,
 					gain,
 					audioContext,
-					destination,
-					audio
+					destination
 				});
-			}
-
-
+			}*/
 		};
 
 		connection.oniceconnectionstatechange = e => console.log("ICE Connection state:" + connection.iceConnectionState);
@@ -114,6 +117,7 @@ class AntennaPeer {
 		 * @property {Array<RTCDataChannel>}
 		 */
 		this.channels = {};
+		this.streams = { video: [], audio: [] };
 	}
 
 	async setupRequest() {
@@ -193,15 +197,10 @@ class AntennaPeer {
 
 	/**
 	 * 
-	 * @param {MediaStream} audio
-	 * @param {MediaStream} video
+	 * @param {MediaStream[]} streams
 	 */
-	setInputStream(audio, video) {
-		// TODO: Remove any previous input streams
-		// Add new input stream
-
-		let stream = new MediaStream([...(audio ? audio.getAudioTracks() : []), ...(video ? video.getVideoTracks() : [])]);
-
+	setInputStreams(streams) {
+		let stream = new MediaStream(streams.map(s => s.getTracks()).flat());
 		stream.getTracks().forEach(track => this.connection.addTrack(track, stream));
 	}
 
@@ -240,10 +239,7 @@ class AntennaClient {
 			onMessage: _ => 0,
 			onDataChannel: {}
 		};
-		this.input = {
-			audio: new Audio,
-			video: document.createElement("video"),
-		};
+		this.streams = [];
 	}
 
 	/*
@@ -316,7 +312,7 @@ class AntennaClient {
 	createPeer(id) {
 		let peer = new AntennaPeer(id, this);
 		peer.createChannel("text");
-		peer.setInputStream(this.input.audio.srcObject, this.input.video.srcObject);
+		peer.setInputStreams(this.streams);
 		this.peers[id] = peer;
 		return peer;
 	}
@@ -390,53 +386,30 @@ class AntennaClient {
 		});
 	}
 
-	async setMicrophone(deviceId) {
-		//this.settings.inputId = deviceId;
+	async addMicrophone(deviceId) {
 		// Media Constraints
-		const CONSTRAINTS = { audio: true };
-		let stream = await navigator.mediaDevices
-			.getUserMedia(CONSTRAINTS);
-		this.log("Connected to Microphone", stream);
-
-		let audioContext = new AudioContext,
-			micOutput = audioContext.createMediaStreamSource(stream),
-			/*micDB = monitorDB(micOutput, audioContext, db => {
-				this.input.db = db;
-				this.settings.onMicDB(db);
-			}),*/
-			destination = audioContext.createMediaStreamDestination();
-
-		micOutput.connect(destination);
-		this.devices.input = destination.stream;
-
-		//Object.values(this.peers).forEach(peer => peer.setInputStream(stream));*/
-		this.input.audio.srcObject = stream;
-	}
-
-	async setWebcam() {
-		// Media Constraints
-		const CONSTRAINTS = { video: { facingMode: "user" } };
+		const CONSTRAINTS = { audio: { deviceId } };
 		let stream = await navigator.mediaDevices.getUserMedia(CONSTRAINTS);
-		this.log("Connected to Webcam");
-
-		this.input.video.srcObject = stream;
+		this.log("Connected to Microphone", stream);
+		this.streams.push(stream);
+		//document.body.appendChild(createAudioElement(stream));
 	}
 
-	async setScreenshare() {
-		const CONSTRAINTS = {
-			video: {
-				cursor: "always"
-			},
-			audio: false/*{
-			echoCancellation: true,
-			noiseSuppression: true,
-			sampleRate: 44100
-		  }*/};
+	async addCamera(deviceId) {
+		// Media Constraints
+		const CONSTRAINTS = { video: { facingMode: "user", deviceId } };
+		let stream = await navigator.mediaDevices.getUserMedia(CONSTRAINTS);
+		this.log("Connected to Camera", stream);
+		this.streams.push(stream);
+		//document.body.appendChild(createVideoElement(stream));
+	}
+
+	async addScreen() {
+		const CONSTRAINTS = { video: { cursor: "always", logicalSurface: true }, audio: true };
 		let stream = await navigator.mediaDevices.getDisplayMedia(CONSTRAINTS);
-		//let video = document.createElement("video");
-		//video.srcObject = stream;
-		//document.body.appendChild(video)
-		this.input.video.srcObject = stream;
+		this.log("Connected to Screen", stream);
+		this.streams.push(stream);
+		//document.body.appendChild(createVideoElement(stream));
 	}
 
 	async getDevices(kind = "input") {
