@@ -6,7 +6,6 @@ const DEFAULT_OPTIONS = {
 	config: {
 		//iceServers: [{urls: ["stun:stun.l.google.com:19302"]},],
 	},
-	log: console.log,
 	static: false,
 };
 
@@ -203,7 +202,7 @@ class AntennaClient {
 	constructor(options) {
 		options = Object.assign(DEFAULT_OPTIONS, options);
 
-		this.log = options.log;
+		console.log = options.log;
 		this.config = options.config;
 		this.ip = options.ip;
 
@@ -249,20 +248,20 @@ class AntennaClient {
 	setupSocket() {
 		this.socket = io.connect(this.ip);
 		this.on("connect", () => {
-			this.log(`Connected to ${this.ip}`);
+			console.log(`Connected to ${this.ip}`);
 			if (this.room) {
-				this.log(`Rejoining ${this.room.roomId}`);
+				console.log(`Rejoining ${this.room.roomId}`);
 				this.joinRoom();
 			}
 		});
 		this.on("peerConnect", async ({ id }) => {
-			this.log(`Peer ${id} has joined the room. Sending a peer to peer connection request to the new peer.`);
+			console.log(`Peer ${id} has joined the room. Sending a peer to peer connection request to the new peer.`);
 			let peer = this.createPeer(id);
 			await peer.setupRequest();
 			this.emit("request", { id, description: peer.localDescription });
 		});
 		this.on("request", async ({ id, description }) => {
-			this.log(`Incoming connection request from ${id}`, description);
+			console.log(`Incoming connection request from ${id}`, description);
 			let peer = this.createPeer(id);
 			await peer.answerRequest(description);
 			this.emit("answer", { id, description: peer.localDescription });
@@ -271,7 +270,7 @@ class AntennaClient {
 
 		// From New Peer to existing Peers
 		this.on("answer", ({ id, description }) => {
-			this.log(`Connection request to ${id} has been answered:`, description);
+			console.log(`Connection request to ${id} has been answered:`, description);
 			this.peers[id].setRemoteDescription(description);
 			this.emit("status", this.settings);
 		});
@@ -282,7 +281,7 @@ class AntennaClient {
 
 		this.on("peerDisconnect", id => {
 			if (this.peers[id]) {
-				this.log(`Peer ${id} has left the room`);
+				console.log(`Peer ${id} has left the room`);
 				this.disconnectFromPeer(id);
 			}
 		});
@@ -373,7 +372,7 @@ class AntennaClient {
 		// Media Constraints
 		const CONSTRAINTS = { audio: { deviceId } };
 		let stream = await navigator.mediaDevices.getUserMedia(CONSTRAINTS);
-		this.log("Connected to Microphone", stream);
+		console.log("Connected to Microphone", stream);
 		this.streams.push(stream);
 		//document.body.appendChild(createAudioElement(stream));
 	}
@@ -382,7 +381,7 @@ class AntennaClient {
 		// Media Constraints
 		const CONSTRAINTS = { video: { facingMode: "user", deviceId } };
 		let stream = await navigator.mediaDevices.getUserMedia(CONSTRAINTS);
-		this.log("Connected to Camera", stream);
+		console.log("Connected to Camera", stream);
 		this.streams.push(stream);
 		//document.body.appendChild(createVideoElement(stream));
 	}
@@ -390,7 +389,7 @@ class AntennaClient {
 	async addScreen() {
 		const CONSTRAINTS = { video: { cursor: "always", logicalSurface: true }, audio: true };
 		let stream = await navigator.mediaDevices.getDisplayMedia(CONSTRAINTS);
-		this.log("Connected to Screen", stream);
+		console.log("Connected to Screen", stream);
 		this.streams.push(stream);
 		//document.body.appendChild(createVideoElement(stream));
 	}
