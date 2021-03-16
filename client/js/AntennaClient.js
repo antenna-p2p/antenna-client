@@ -4,30 +4,13 @@ const DEFAULT_OPTIONS = {
 	//ip: "ws://localhost:3001",
 	ip: "antennatest.herokuapp.com",
 	config: {
-		iceServers: [
-			{
-				urls: ["stun:stun.l.google.com:19302"],
-			},
-		],
+		//iceServers: [{urls: ["stun:stun.l.google.com:19302"]},],
 	},
 	log: console.log,
 	static: false,
 };
 
 
-
-function createAudioElement(stream) {
-	let audio = new Audio();
-	audio.srcObject = stream;
-	audio.play();
-	return audio;
-}
-function createVideoElement(stream) {
-	let video = document.createElement("video");
-	video.srcObject = stream;
-	video.play();
-	return video;
-}
 
 /**
  * monitors volume of audio node
@@ -65,19 +48,19 @@ class AntennaPeer {
 			console.log(event);
 			let track = event.track, stream;
 
-			switch (track.type) {
+			switch (track.kind) {
 				case "audio":
 					stream = new MediaStream([track]);
 					this.streams.audio.push(stream);
-					//document.body.appendChild(createAudioElement(stream));
+					//document.body.appendChild(client.createAudioElement(stream));
 					break;
 				case "video":
 					stream = new MediaStream([track]);
 					this.streams.video.push(stream);
-					//document.body.appendChild(createVideoElement(stream));
+					//document.body.appendChild(clienrcreateVideoElement(stream));
 					break;
-
-
+				default:
+					console.log("Unknown track type: ", track.kind)
 			}
 
 			/*if (audioStream.getTracks().length > 0) {
@@ -414,8 +397,23 @@ class AntennaClient {
 
 	async getDevices(kind = "input") {
 		let devices = await navigator.mediaDevices.enumerateDevices();
-		return devices.filter(device => device.kind == "audio" + kind);
+		return
+		devices.filter(device => device.kind == "audio" + kind);
 	}
+
+	createAudioElement(stream) {
+		let audio = new Audio();
+		audio.srcObject = stream;
+		audio.play();
+		return audio;
+	}
+	createVideoElement(stream) {
+		let video = document.createElement("video");
+		video.srcObject = stream;
+		video.play();
+		return video;
+	}
+
 };
 
 export { AntennaClient };
