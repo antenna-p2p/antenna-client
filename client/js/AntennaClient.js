@@ -4,7 +4,7 @@ const DEFAULT_OPTIONS = {
 	//ip: "ws://localhost:3001",
 	ip: "antennatest.herokuapp.com",
 	config: {
-		//iceServers: [{urls: ["stun:stun.l.google.com:19302"]},],
+		iceServers: [{urls: ["stun:stun.l.google.com:19302"]},],
 	},
 	static: false,
 };
@@ -202,7 +202,6 @@ class AntennaClient {
 	constructor(options) {
 		options = Object.assign(DEFAULT_OPTIONS, options);
 
-		console.log = options.log;
 		this.config = options.config;
 		this.ip = options.ip;
 
