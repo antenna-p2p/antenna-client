@@ -1,5 +1,5 @@
 # Antenna
-Peer to peer communication library
+Peer to peer communication library and programs
 
 ## git flow setup
 ```

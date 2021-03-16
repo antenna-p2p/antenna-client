@@ -93,7 +93,6 @@ class AntennaPeer {
 					audio.setSinkId(client.settings.outputId);
 				*/
 
-
 				Object.assign(this, {
 					audioStream,
 					source,
@@ -185,7 +184,7 @@ class AntennaPeer {
 						break;
 				}
 			};
-			//Setup channel Events
+			// Setup channel Events
 			channel.onerror = e => console.log(`${channel.label} Error: `, e);
 			channel.onopen = channel.onclose = statusCB;
 			channel.onmessage = e => this.client.settings.onDataChannel[channel.label](e);
@@ -194,21 +193,21 @@ class AntennaPeer {
 
 	/**
 	 * 
-	 * @param {MediaStream} audio 
-	 * @param {MediaStream} video 
+	 * @param {MediaStream} audio
+	 * @param {MediaStream} video
 	 */
 	setInputStream(audio, video) {
-		let connection = this.connection;
-		///TODO: Remove any previous input streams
-		//Add new input stream
+		// TODO: Remove any previous input streams
+		// Add new input stream
 
-		let stream = new MediaStream([...(audio ? audio.getAudioTracks() : []), ...(video ? video.getVideoTracks() : [])])
+		let stream = new MediaStream([...(audio ? audio.getAudioTracks() : []), ...(video ? video.getVideoTracks() : [])]);
 
-		stream.getTracks().forEach(track => connection.addTrack(track, stream));
+		stream.getTracks().forEach(track => this.connection.addTrack(track, stream));
 	}
 
 	async send(channel, data) {
-		if (!this.channels[channel]) await this.createChannel(channel);
+		if (!this.channels[channel])
+			await this.createChannel(channel);
 		this.channels[channel].send(data);
 	}
 
@@ -394,14 +393,14 @@ class AntennaClient {
 	async setMicrophone(deviceId) {
 		//this.settings.inputId = deviceId;
 		// Media Constraints
-		const CONSTRAINTS = { audio: true }
+		const CONSTRAINTS = { audio: true };
 		let stream = await navigator.mediaDevices
-			.getUserMedia(CONSTRAINTS)
+			.getUserMedia(CONSTRAINTS);
 		this.log("Connected to Microphone", stream);
 
 		let audioContext = new AudioContext,
 			micOutput = audioContext.createMediaStreamSource(stream),
-			/*micDB = omoniterDB(micOutput, audioContext, db => {
+			/*micDB = monitorDB(micOutput, audioContext, db => {
 				this.input.db = db;
 				this.settings.onMicDB(db);
 			}),*/
@@ -416,8 +415,8 @@ class AntennaClient {
 
 	async setWebcam() {
 		// Media Constraints
-		const CONSTRAINTS = { video: { facingMode: "user" } }
-		let stream = await navigator.mediaDevices.getUserMedia(CONSTRAINTS)
+		const CONSTRAINTS = { video: { facingMode: "user" } };
+		let stream = await navigator.mediaDevices.getUserMedia(CONSTRAINTS);
 		this.log("Connected to Webcam");
 
 		this.input.video.srcObject = stream;
