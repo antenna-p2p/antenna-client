@@ -1,5 +1,16 @@
 [] means need to think of a better name
-structure
+
+add audio {microphone dropdown}
+add video {webcam+window+monitor+all monitors dropdown}
+output {speaker dropdown}
+
+something data streams
+
+audio streams should show volume meter
+
+
+
+room structure
 
 [Chatroom]
 	[Person in call] (self, others)
