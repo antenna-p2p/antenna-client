@@ -1,4 +1,6 @@
 # Antenna Client
+[![Build Status](https://travis-ci.com/antenna-p2p/antenna-client.svg)](https://travis-ci.com/antenna-p2p/antenna-client)
+[![Coverage Status](https://coveralls.io/repos/github/antenna-p2p/antenna-client/badge.svg)](https://coveralls.io/github/antenna-p2p/antenna-client)
 Peer to peer communication library and programs
 
 ## git flow setup
