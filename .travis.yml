@@ -2,7 +2,7 @@ language: ruby
 rvm:
  - 2.7.1
 gemfile:
- - Gemfile
+ - ci/Gemfile
 env:
  - NOKOGIRI_USE_SYSTEM_LIBRARIES=true
 before_install:
