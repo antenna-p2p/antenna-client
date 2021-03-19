@@ -1,9 +1,12 @@
 {
   "devDependencies": {
+    "coveralls": "^3.1.0",
     "jest": "^26.6.3"
   },
   "scripts": {
-    "test": "jest --roots .."
+    "test": "jest --roots ..",
+    "test-coveralls": "jest --coverage",
+    "post-test-coveralls": "coveralls < coverage/lcov.info"
   },
   "repository": {
     "type": "git",

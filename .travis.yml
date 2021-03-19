@@ -12,6 +12,7 @@ install:
  - npm --prefix ./ci install
 script:
  - bundle exec htmlproofer ./
- - npm --prefix ./ci test
+ - npm --prefix ./ci run test-coveralls
+after_success: npm --prefix ./ci run post-test-coveralls
 notifications:
   webhooks: https://coveralls.io/webhook
