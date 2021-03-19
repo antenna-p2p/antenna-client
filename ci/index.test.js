@@ -36,5 +36,7 @@ describe('index.html', () => {
         window = getWindowHandle(page);
         client = window.client;
     });
+    test("unit testing works", () => {
+    });
 });
 ;
