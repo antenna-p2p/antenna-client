@@ -11,7 +11,7 @@ install:
  - bundle install
  - npm --prefix ./ci install
 script:
- - bundle exec htmlproofer ./
+ - bundle exec htmlproofer ./  --alt-ignore '/.*/' 
  - npm --prefix ./ci run test-coveralls
 after_success: npm --prefix ./ci run post-test-coveralls
 notifications:
