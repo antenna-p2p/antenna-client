@@ -4,7 +4,7 @@ const DEFAULT_OPTIONS = {
 	//ip: "ws://localhost:3001",
 	ip: "antennatest.herokuapp.com",
 	config: {
-		iceServers: [{urls: ["stun:stun.l.google.com:19302"]},],
+		iceServers: [{ urls: ["stun:stun.l.google.com:19302"] },],
 	},
 	static: false,
 };
@@ -59,7 +59,7 @@ class AntennaPeer {
 					//document.body.appendChild(clienrcreateVideoElement(stream));
 					break;
 				default:
-					console.log("Unknown track type: ", track.kind)
+					console.log("Unknown track type: ", track.kind);
 			}
 
 			/*if (audioStream.getTracks().length > 0) {
@@ -395,7 +395,7 @@ class AntennaClient {
 
 	async getDevices(kind = "input") {
 		let devices = await navigator.mediaDevices.enumerateDevices();
-		return
+		return;
 		devices.filter(device => device.kind == "audio" + kind);
 	}
 
@@ -413,5 +413,4 @@ class AntennaClient {
 	}
 
 };
-
 export { AntennaClient };
