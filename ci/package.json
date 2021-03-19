@@ -3,7 +3,7 @@
     "jest": "^26.6.3"
   },
   "scripts": {
-    "test": "jest"
+    "test": "jest --roots .."
   },
   "repository": {
     "type": "git",
