@@ -36,8 +36,5 @@ describe('index.html', () => {
         window = getWindowHandle(page);
         client = window.client;
     });
-    test("join room", async done => {
-        client.joinRoom("");
-    });
 });
 ;
