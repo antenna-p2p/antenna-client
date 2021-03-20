@@ -1,5 +1,4 @@
 {
     "verbose": true,
-    "preset": "jest-puppeteer",
-    "coverageDirectory": "coverage"
+    "preset": "jest-puppeteer"
 }

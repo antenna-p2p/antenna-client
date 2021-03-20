@@ -15,4 +15,7 @@ script:
  - npm --prefix ./ci run test:coveralls
 after_success: npm --prefix ./ci run test:coveralls:post
 notifications:
-  webhooks: https://coveralls.io/webhook
+  webhooks:
+    urls:
+      - https://coveralls.io/webhook
+      - https://webhooks.gitter.im/e/b14bb9442f767070b059
